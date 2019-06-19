@@ -22,23 +22,34 @@ let tokenize = str => {
 
 List.length(tokenize(square)) == 22 |> string_of_bool |> print_endline;
 
+type readResult =
+  | Complete(list(expression))
+  | Incomplete(list(expression), list(string));
+
 let rec read = (out, input) => {
   switch (input) {
-  | [] => List.rev(out)
+  | [] => Complete(List.rev(out))
   | [head, ...tail] =>
-    let newOut = switch(head) {
-      | head when isNumber(head) => Number(int_of_string(head));
-      | head => Symbol(head);
-    }
+    let (latestOut, newTail) =
+      switch (head) {
+      | head when isNumber(head) => (Number(int_of_string(head)), tail)
+      | head => (Symbol(head), tail)
+      };
 
-    read(List.cons(newOut, out), tail);
-  }
-}
+    read(List.cons(latestOut, out), newTail);
+  };
+};
 
-  let read_tokens = input => read([], input);
+exception UnbalancedParens;
+
+let read_tokens = input =>
+  switch (read([], input)) {
+  | Complete(results) => results
+  | Incomplete(_, _) => raise(UnbalancedParens)
+  };
 
 let parse = str => str |> tokenize |> read_tokens;
 
-let some_atoms = "42 foo    bar 99      "
+let some_atoms = "42 foo    bar 99      ";
 
-  List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;
+List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;
