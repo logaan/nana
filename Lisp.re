@@ -7,20 +7,10 @@ let isNumber = str => {
   Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
 };
 
-let square = "
-   (dorun
-   (defn square (n)
-   (* n n))
-
-   (println (square 2)))
-   ";
-
 let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
   Str.split(Str.regexp("[ \n]+"), expanded);
 };
-
-List.length(tokenize(square)) == 22 |> string_of_bool |> print_endline;
 
 type readResult =
   | Complete(list(expression))
@@ -59,6 +49,25 @@ let read_tokens = input =>
 
 let parse = str => str |> tokenize |> read_tokens;
 
+// test suite
+
+let square = "
+   (defn square (n)
+   (* n n))
+
+   (println (square 2))
+   ";
+
+let squareParsed = [
+  List([Symbol("defn"), Symbol("square"), List([Symbol("n")]),
+        List([Symbol("*"), Symbol("n"), Symbol("n")])]),
+  List([Symbol("println"), List([Symbol("square"), Number(2)])])
+]
+
+  List.length(tokenize(square)) == 19 |> string_of_bool |> print_endline;
+
 let some_atoms = "42 foo    bar 99      ";
 
 List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;
+List.length(parse(square)) == 2 |> string_of_bool |> print_endline;
+parse(square) == squareParsed |> string_of_bool |> print_endline;
