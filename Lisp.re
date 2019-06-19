@@ -28,7 +28,7 @@ let rec read = (out, input) => {
       let (latestOut, newTail) =
         switch (head) {
         | "(" =>
-          switch(read([], tail)) {
+          switch (read([], tail)) {
           | Complete(_) => raise(UnbalancedParens)
           | Incomplete(parsed, newTail) => (List(parsed), newTail)
           }
@@ -59,12 +59,16 @@ let square = "
    ";
 
 let squareParsed = [
-  List([Symbol("defn"), Symbol("square"), List([Symbol("n")]),
-        List([Symbol("*"), Symbol("n"), Symbol("n")])]),
-  List([Symbol("println"), List([Symbol("square"), Number(2)])])
-]
+  List([
+    Symbol("defn"),
+    Symbol("square"),
+    List([Symbol("n")]),
+    List([Symbol("*"), Symbol("n"), Symbol("n")]),
+  ]),
+  List([Symbol("println"), List([Symbol("square"), Number(2)])]),
+];
 
-  List.length(tokenize(square)) == 19 |> string_of_bool |> print_endline;
+List.length(tokenize(square)) == 19 |> string_of_bool |> print_endline;
 
 let some_atoms = "42 foo    bar 99      ";
 
