@@ -1,0 +1,11 @@
+* Reference
+  - [[https://norvig.com/lispy.html][(How to Write a (Lisp) Interpreter (in Python))]]
+  - [[https://reasonml.github.io/api/Str.html][Module Str]]
+* Goals
+** Define a function and call it
+   #+BEGIN_SRC lisp
+     (defn square (n)
+       (* n n))
+
+     (println (square 2))
+   #+END_SRC
