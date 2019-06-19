@@ -16,26 +16,27 @@ exception UnbalancedParens;
 
 let isNumber = str => Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
 
-let rec read = (out, input) =>
-  switch (input) {
-  | [] => Complete(List.rev(out))
+let rec read = (expressions, tokens) =>
+  switch (tokens) {
+  | [] => Complete(List.rev(expressions))
 
   | ["(", ...tail] =>
     switch (read([], tail)) {
     | Complete(_) => raise(UnbalancedParens)
-    | Incomplete(parsed, newTail) => read([List(parsed), ...out], newTail)
+    | Incomplete(nestedExpressions, newTail) =>
+      read([List(nestedExpressions), ...expressions], newTail)
     }
 
-  | [")", ...tail] => Incomplete(List.rev(out), tail)
+  | [")", ...tail] => Incomplete(List.rev(expressions), tail)
 
   | [head, ...tail] when isNumber(head) =>
-    read([Number(int_of_string(head)), ...out], tail)
+    read([Number(int_of_string(head)), ...expressions], tail)
 
-  | [head, ...tail] => read([Symbol(head), ...out], tail)
+  | [head, ...tail] => read([Symbol(head), ...expressions], tail)
   };
 
-let read_tokens = input =>
-  switch (read([], input)) {
+let read_tokens = tokens =>
+  switch (read([], tokens)) {
   | Complete(results) => results
   | Incomplete(_, _) => raise(UnbalancedParens)
   };
