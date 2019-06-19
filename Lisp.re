@@ -23,7 +23,7 @@ let rec read = (out, input) => {
   | [] => Complete(List.rev(out))
   | [head, ...tail] =>
     if (head == ")") {
-      Incomplete(out, tail);
+      Incomplete(List.rev(out), tail);
     } else {
       let (latestOut, newTail) =
         switch (head) {
