@@ -26,21 +26,30 @@ type readResult =
   | Complete(list(expression))
   | Incomplete(list(expression), list(string));
 
+exception UnbalancedParens;
+
 let rec read = (out, input) => {
   switch (input) {
   | [] => Complete(List.rev(out))
   | [head, ...tail] =>
-    let (latestOut, newTail) =
-      switch (head) {
-      | head when isNumber(head) => (Number(int_of_string(head)), tail)
-      | head => (Symbol(head), tail)
-      };
+    if (head == ")") {
+      Incomplete(out, tail);
+    } else {
+      let (latestOut, newTail) =
+        switch (head) {
+        | "(" =>
+          switch(read([], tail)) {
+          | Complete(_) => raise(UnbalancedParens)
+          | Incomplete(parsed, newTail) => (List(parsed), newTail)
+          }
+        | head when isNumber(head) => (Number(int_of_string(head)), tail)
+        | head => (Symbol(head), tail)
+        };
 
-    read(List.cons(latestOut, out), newTail);
+      read(List.cons(latestOut, out), newTail);
+    }
   };
 };
-
-exception UnbalancedParens;
 
 let read_tokens = input =>
   switch (read([], input)) {
