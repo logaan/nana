@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+refmt --in-place Lisp.re LispTest.re

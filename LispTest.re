@@ -9,11 +9,11 @@ let square = "
 
 let squareParsed = [
   List([
-  Symbol("defn"),
-  Symbol("square"),
-  List([Symbol("n")]),
-  List([Symbol("*"), Symbol("n"), Symbol("n")]),
-]),
+    Symbol("defn"),
+    Symbol("square"),
+    List([Symbol("n")]),
+    List([Symbol("*"), Symbol("n"), Symbol("n")]),
+  ]),
   List([Symbol("println"), List([Symbol("square"), Number(2)])]),
 ];
 
