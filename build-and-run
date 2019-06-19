@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+dune build Lisp.exe && ./_build/default/Lisp.exe
