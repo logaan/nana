@@ -8,12 +8,12 @@ let isNumber = str => {
 };
 
 let square = "
-(dorun
-  (defn square (n)
-    (* n n))
+   (dorun
+   (defn square (n)
+   (* n n))
 
-  (println (square 2)))
-";
+   (println (square 2)))
+   ";
 
 let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
@@ -26,21 +26,19 @@ let rec read = (out, input) => {
   switch (input) {
   | [] => List.rev(out)
   | [head, ...tail] =>
-    let newOut =
-      if (isNumber(head)) {
-        Number(int_of_string(head));
-      } else {
-        Symbol(head);
-      };
+    let newOut = switch(head) {
+      | head when isNumber(head) => Number(int_of_string(head));
+      | head => Symbol(head);
+    }
 
     read(List.cons(newOut, out), tail);
   }
 }
 
-let read_tokens = input => read([], input);
+  let read_tokens = input => read([], input);
 
 let parse = str => str |> tokenize |> read_tokens;
 
 let some_atoms = "42 foo    bar 99      "
 
-List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;
+  List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;
