@@ -1,11 +1,11 @@
 type expression =
-  | Symbol(string)
   | Number(int)
+  | Symbol(string)
   | List(list(expression));
 
-let isNumber = (str) => {
+let isNumber = str => {
   Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
-}
+};
 
 let square = "
 (dorun
@@ -13,16 +13,34 @@ let square = "
     (* n n))
 
   (println (square 2)))
-"
+";
 
-let tokenize = (str) => {
-  let expanded = Str.global_replace(Str.regexp("[()]"),
-                                    " \\0 ", str);
-  Str.split(Str.regexp("[ \n]+"), expanded)
+let tokenize = str => {
+  let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
+  Str.split(Str.regexp("[ \n]+"), expanded);
+};
+
+List.length(tokenize(square)) == 22 |> string_of_bool |> print_endline;
+
+let rec read = (out, input) => {
+  switch (input) {
+  | [] => List.rev(out)
+  | [head, ...tail] =>
+    let newOut =
+      if (isNumber(head)) {
+        Number(int_of_string(head));
+      } else {
+        Symbol(head);
+      };
+
+    read(List.cons(newOut, out), tail);
+  }
 }
 
-List.length(tokenize(square)) == 22
-|> string_of_bool
-|> print_endline;
+let read_tokens = input => read([], input);
 
-print_endline("Hello, World.");
+let parse = str => str |> tokenize |> read_tokens;
+
+let some_atoms = "42 foo    bar 99      "
+
+List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;

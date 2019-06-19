@@ -9,4 +9,10 @@
 
      (println (square 2))
    #+END_SRC
-   
+* Observations   
+** Not being able to print random data is super annoying
+*** I wanted to check that my tokenize fn is working and the best I can do is check the length
+** It seemed good to flatten the expression type
+*** Originally had ~type atom = Symbol | Number;~ too
+*** It's a bit annoying that you can't have types without constructors
+*** Like expression needs list wrapped in List
