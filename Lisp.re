@@ -3,10 +3,6 @@ type expression =
   | Symbol(string)
   | List(list(expression));
 
-let isNumber = str => {
-  Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
-};
-
 let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
   Str.split(Str.regexp("[ \n]+"), expanded);
@@ -18,26 +14,26 @@ type readResult =
 
 exception UnbalancedParens;
 
+let isNumber = str => {
+  Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
+};
+
 let rec read = (out, input) => {
   switch (input) {
   | [] => Complete(List.rev(out))
-  | [head, ...tail] =>
-    if (head == ")") {
-      Incomplete(List.rev(out), tail);
-    } else {
-      let (latestOut, newTail) =
-        switch (head) {
-        | "(" =>
-          switch (read([], tail)) {
-          | Complete(_) => raise(UnbalancedParens)
-          | Incomplete(parsed, newTail) => (List(parsed), newTail)
-          }
-        | head when isNumber(head) => (Number(int_of_string(head)), tail)
-        | head => (Symbol(head), tail)
-        };
 
-      read(List.cons(latestOut, out), newTail);
+  | ["(", ...tail] =>
+    switch (read([], tail)) {
+    | Complete(_) => raise(UnbalancedParens)
+    | Incomplete(parsed, newTail) => read([List(parsed), ...out], newTail)
     }
+
+  | [")", ...tail] => Incomplete(List.rev(out), tail)
+
+  | [head, ...tail] when isNumber(head) =>
+    read([Number(int_of_string(head)), ...out], tail)
+
+  | [head, ...tail] => read([Symbol(head), ...out], tail)
   };
 };
 
@@ -49,7 +45,7 @@ let read_tokens = input =>
 
 let parse = str => str |> tokenize |> read_tokens;
 
-// test suite
+/* test suite */
 
 let square = "
    (defn square (n)
