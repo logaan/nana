@@ -2,7 +2,7 @@ open Lisp;
 
 let square = "
    (defn square (n)
-   (* n n))
+     (* n n))
 
    (println (square 2))
    ";
@@ -17,6 +17,12 @@ let squareParsed = [
   List([Symbol("println"), List([Symbol("square"), Number(2)])]),
 ];
 
+let evalAndPrint = code => {
+  let parsed = parse(code);
+  let results = List.map(expression => eval(expression, environment), parsed);
+  print_endline(string_of_expressions(results));
+};
+
 let run = () => {
   List.length(tokenize(square)) == 19 |> string_of_bool |> print_endline;
 
@@ -27,6 +33,8 @@ let run = () => {
   parse(square) == squareParsed |> string_of_bool |> print_endline;
 
   square |> parse |> string_of_expressions |> print_endline;
+
+  evalAndPrint("(+ 1 1)")
 };
 
 let () = run();
