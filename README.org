@@ -10,28 +10,29 @@
 
      (println (square 2))
    #+END_SRC
+** Create a repl executable
 * Observations   
-** Not being able to print random data is super annoying
-*** I wanted to check that my tokenize fn is working and the best I can do is check the length
-** It seemed good to flatten the expression type
-*** Originally had ~type atom = Symbol | Number;~ too
-*** It's a bit annoying that you can't have types without constructors
-*** Like expression needs list wrapped in List
-** Can use a repl to see return values?
-*** [[https://medium.com/@bobbypriambodo/starting-an-ocaml-app-project-using-dune-d4f74e291de8][People recomment utop]]
-**** It sucks
-*** the ocaml binary sucks too
-** Emacs editor support is pretty bad
+  - Not being able to print random data is super annoying
+    - I wanted to check that my tokenize fn is working and the best I can do is check the length
+  - It seemed good to flatten the expression type
+    - Originally had ~type atom = Symbol | Number;~ too
+    - It's a bit annoying that you can't have types without constructors
+    - Like expression needs list wrapped in List
+  - Can use a repl to see return values?
+    - [[https://medium.com/@bobbypriambodo/starting-an-ocaml-app-project-using-dune-d4f74e291de8][People recomment utop]]
+      - It sucks
+    - the ocaml binary sucks too
+  - Emacs editor support is pretty bad
 * Repl
-** ~rtop~ seem to be the best option
-*** But it can't find ~Str~
-** There are examples of compiling a custom toplevel with dune
-*** But it can't ~#use~ reason files
-*** And doesn't find modules that're loaded in with the run fn
-** rtop with require
-   #+BEGIN_SRC bash
-     rtop
-     #require "str";
-     #use "Lisp.re";
-   #+END_SRC
-** Gave up and just wrote my own to string function
+  - ~rtop~ seem to be the best option
+    - But it can't find ~Str~
+  - There are examples of compiling a custom toplevel with dune
+    - But it can't ~#use~ reason files
+    - And doesn't find modules that're loaded in with the run fn
+  - rtop with require
+  - #+BEGIN_SRC bash
+  -   rtop
+  -   #require "str";
+  -   #use "Lisp.re";
+  - #+END_SRC
+  - Gave up and just wrote my own to string function
