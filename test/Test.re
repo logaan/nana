@@ -1,5 +1,6 @@
-open CoreTypes;
+open Lib;
 open Lisp;
+open CoreTypes;
 
 let square = "
    (defn square (n)

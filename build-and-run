@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-dune build LispTest.exe && dune exec ./LispTest.exe
