@@ -20,6 +20,6 @@ let lispFirst = args =>
 
 let environment =
   StringMap.empty
-|> StringMap.add("+", Function(lispPlus))
-|> StringMap.add("-", Function(lispMinus))
-|> StringMap.add("first", Function(lispFirst));
+  |> StringMap.add("+", Function(lispPlus))
+  |> StringMap.add("-", Function(lispMinus))
+  |> StringMap.add("first", Function(lispFirst));

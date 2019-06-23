@@ -49,7 +49,7 @@ let parse = str => str |> tokenize |> read_tokens;
 
 let apply = (fn, args) =>
   switch (fn) {
-  | Function(fn) => fn(args);
+  | Function(fn) => fn(args)
   | _ => raise(ArgumentError("Lists must start with functions"))
   };
 
