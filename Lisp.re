@@ -18,8 +18,6 @@ let tokenize = str => {
   Str.split(Str.regexp("[ \n]+"), expanded);
 };
 
-exception UnbalancedParens;
-
 let isNumber = str => Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
 
 let rec read = (expressions, tokens) =>

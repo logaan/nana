@@ -13,3 +13,5 @@ type readResult =
 module StringMap = Map.Make(String);
 
 exception ArgumentError(string);
+
+exception UnbalancedParens;
