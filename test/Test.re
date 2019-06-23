@@ -19,16 +19,6 @@ let squareParsed = [
   List([Symbol("println"), List([Symbol("square"), Number(2)])]),
 ];
 
-let evalAndPrint = code => {
-  let parsed = parse(code);
-  let results =
-    List.map(
-      expression => eval(expression, StandardLibrary.environment),
-      parsed,
-    );
-  print_endline(string_of_expressions(results));
-};
-
 let run = () => {
   List.length(tokenize(square)) == 19 |> string_of_bool |> print_endline;
 

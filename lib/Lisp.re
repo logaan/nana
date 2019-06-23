@@ -64,3 +64,13 @@ let rec eval = (expression, environment) =>
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
   | Function(_) => raise(ArgumentError("There's no syntax for functions"))
   };
+
+let evalAndPrint = code => {
+  let parsed = parse(code);
+  let results =
+    List.map(
+    expression => eval(expression, StandardLibrary.environment),
+    parsed,
+  );
+  print_endline(string_of_expressions(results));
+};
