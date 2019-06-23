@@ -30,9 +30,9 @@
     - But it can't ~#use~ reason files
     - And doesn't find modules that're loaded in with the run fn
   - rtop with require
-  - #+BEGIN_SRC bash
-  -   rtop
-  -   #require "str";
-  -   #use "Lisp.re";
-  - #+END_SRC
+    #+BEGIN_SRC bash
+      rtop
+      #require "str";
+      #use "Lisp.re";
+    #+END_SRC
   - Gave up and just wrote my own to string function
