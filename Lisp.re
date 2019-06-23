@@ -4,7 +4,9 @@ let rec string_of_expression = expr =>
   switch (expr) {
   | Number(n) => "Number(" ++ string_of_int(n) ++ ")"
   | Symbol(s) => "Symbol(" ++ s ++ ")"
-  | List(l) => "List(" ++ String.concat(", ", List.map(string_of_expression, l)) ++ ")"
+  | List(l) =>
+    let children = List.map(string_of_expression, l);
+    "List(" ++ String.concat(", ", children) ++ ")";
   | Function(_) => "Function()"
   };
 
@@ -47,16 +49,20 @@ let read_tokens = tokens =>
 
 let parse = str => str |> tokenize |> read_tokens;
 
+let apply = (fn, args) =>
+  switch (fn) {
+  | Function(fn) => fn(args);
+  | _ => raise(ArgumentError("Lists must start with functions"))
+  };
+
 let rec eval = (expression, environment) =>
   switch (expression) {
   | Number(i) => Number(i)
   | Symbol(s) => StringMap.find(s, environment)
   | List([Symbol(functionName), ...argExprs]) =>
-    let result: expression = StringMap.find(functionName, environment)
-    switch (result) {
-    | Function(fn) => fn(List.map(expression => eval(expression, environment), argExprs))
-    | _ => raise(ArgumentError("Lists must start with functions"))
-    }
+    let result = StringMap.find(functionName, environment);
+    let args = List.map(expr => eval(expr, environment), argExprs);
+    apply(result, args);
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
   | Function(_) => raise(ArgumentError("There's no syntax for functions"))
   };
