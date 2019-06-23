@@ -3,6 +3,16 @@ type expression =
   | Symbol(string)
   | List(list(expression));
 
+let rec string_of_expression = expr =>
+  switch (expr) {
+  | Number(n) => "Number(" ++ string_of_int(n) ++ ")"
+  | Symbol(s) => "Symbol(" ++ s ++ ")"
+  | List(l) => "List(" ++ String.concat(", ", List.map(string_of_expression, l)) ++ ")"
+  };
+
+let string_of_expressions = exprs =>
+  String.concat("\n", List.map(string_of_expression, exprs));
+
 let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
   Str.split(Str.regexp("[ \n]+"), expanded);

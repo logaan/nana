@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-dune build LispTest.exe && ./_build/default/LispTest.exe
+dune build LispTest.exe && dune exec ./LispTest.exe

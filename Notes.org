@@ -1,6 +1,7 @@
 * Reference
   - [[https://norvig.com/lispy.html][(How to Write a (Lisp) Interpreter (in Python))]]
   - [[https://reasonml.github.io/api/Str.html][Module Str]]
+  - [[https://stackoverflow.com/questions/48830710/how-do-i-declare-a-map-type-in-reason-ml][Reason Maps]]
 * Goals
 ** Define a function and call it
    #+BEGIN_SRC lisp
@@ -21,3 +22,16 @@
 **** It sucks
 *** the ocaml binary sucks too
 ** Emacs editor support is pretty bad
+* Repl
+** ~rtop~ seem to be the best option
+*** But it can't find ~Str~
+** There are examples of compiling a custom toplevel with dune
+*** But it can't ~#use~ reason files
+*** And doesn't find modules that're loaded in with the run fn
+** rtop with require
+   #+BEGIN_SRC bash
+     rtop
+     #require "str";
+     #use "Lisp.re";
+   #+END_SRC
+** Gave up and just wrote my own to string function
