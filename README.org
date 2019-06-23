@@ -3,14 +3,14 @@
   - [[https://reasonml.github.io/api/Str.html][Module Str]]
   - [[https://stackoverflow.com/questions/48830710/how-do-i-declare-a-map-type-in-reason-ml][Reason Maps]]
 * Goals
-** Define a function and call it
-   #+BEGIN_SRC lisp
-     (defn square (n)
-       (* n n))
+  - Define a function and call it
+    #+BEGIN_SRC lisp
+       (defn square (n)
+         (* n n))
 
-     (println (square 2))
-   #+END_SRC
-** Create a repl executable
+       (println (square 2))
+    #+END_SRC
+  - Create a repl executable
 * Observations   
   - Not being able to print random data is super annoying
     - I wanted to check that my tokenize fn is working and the best I can do is check the length
