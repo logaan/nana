@@ -1,12 +1,4 @@
-type lispFn = list(expression) => expression
-
-and expression =
-  | Number(int)
-  | Symbol(string)
-  | List(list(expression))
-  | Function(lispFn);
-
-exception ArgumentError(string);
+open CoreTypes;
 
 let rec string_of_expression = expr =>
   switch (expr) {
@@ -23,10 +15,6 @@ let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
   Str.split(Str.regexp("[ \n]+"), expanded);
 };
-
-type readResult =
-  | EndOfTokens(list(expression))
-  | EndOfExpression(list(expression), list(string));
 
 exception UnbalancedParens;
 
@@ -58,32 +46,6 @@ let read_tokens = tokens =>
   };
 
 let parse = str => str |> tokenize |> read_tokens;
-
-module StringMap = Map.Make(String);
-
-let lispPlus = args =>
-  switch (args) {
-  | [Number(a), Number(b)] => Number(a + b)
-  | _ => raise(ArgumentError("+ takes two numbers"))
-  };
-
-let lispMinus = args =>
-  switch (args) {
-  | [Number(a), Number(b)] => Number(a - b)
-  | _ => raise(ArgumentError("- takes two numbers"))
-  };
-
-let lispFirst = args =>
-  switch (args) {
-  | [first, ..._rest] => first
-  | _ => raise(ArgumentError("first a list with at least one value"))
-  };
-
-let environment =
-  StringMap.empty
-  |> StringMap.add("+", Function(lispPlus))
-  |> StringMap.add("-", Function(lispMinus))
-  |> StringMap.add("first", Function(lispFirst));
 
 let rec eval = (expression, environment) =>
   switch (expression) {

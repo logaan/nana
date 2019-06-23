@@ -1,3 +1,4 @@
+open CoreTypes;
 open Lisp;
 
 let square = "
@@ -19,7 +20,11 @@ let squareParsed = [
 
 let evalAndPrint = code => {
   let parsed = parse(code);
-  let results = List.map(expression => eval(expression, environment), parsed);
+  let results =
+    List.map(
+      expression => eval(expression, StandardLibrary.environment),
+      parsed,
+    );
   print_endline(string_of_expressions(results));
 };
 
@@ -34,7 +39,7 @@ let run = () => {
 
   square |> parse |> string_of_expressions |> print_endline;
 
-  evalAndPrint("(+ 1 1)")
+  evalAndPrint("(+ 1 1)");
 };
 
 let () = run();
