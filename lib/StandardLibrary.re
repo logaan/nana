@@ -12,6 +12,12 @@ let lispMinus = args =>
   | _ => raise(ArgumentError("- takes two numbers"))
   };
 
+let lispTimes = args =>
+  switch (args) {
+  | [Number(a), Number(b)] => Number(a * b)
+  | _ => raise(ArgumentError("* takes two numbers"))
+  };
+
 let lispFirst = args =>
   switch (args) {
   | [List([first, ..._rest])] => first
@@ -22,4 +28,5 @@ let environment: environment =
   StringMap.empty
   |> StringMap.add("+", Function(lispPlus))
   |> StringMap.add("-", Function(lispMinus))
+  |> StringMap.add("*", Function(lispTimes))
   |> StringMap.add("first", Function(lispFirst));
