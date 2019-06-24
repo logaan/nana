@@ -57,8 +57,6 @@ let rec eval = (expression, environment) =>
   switch (expression) {
   | Number(i) => Number(i)
   | Symbol(s) => StringMap.find(s, environment)
-  | List([Symbol("quote")]) =>
-    raise(ArgumentError("Quote must have one argument."))
   | List([Symbol("quote"), quotedValue]) => quotedValue
   | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument."))

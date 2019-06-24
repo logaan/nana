@@ -2,5 +2,4 @@
 
 dune clean && \
 dune runtest && \
-dune build bin/Hello.exe && \
 dune exec bin/Hello.exe
