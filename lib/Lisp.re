@@ -60,11 +60,11 @@ let argsToEnv = (env, names, values) => {
   List.fold_left2(add, env, names, values);
 };
 
-let argsToStrings = (exp) =>
+let argsToStrings = exp =>
   switch (exp) {
   | Symbol(name) => name
   | _ => raise(ArgumentError("All arguments must be symbols"))
-  }
+  };
 
 let rec apply = (fn, args) =>
   switch (fn) {
@@ -83,10 +83,8 @@ and eval = (expression, environment) =>
   | List([Symbol("quote"), quotedValue]) => quotedValue
   | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument"))
-  | List([Symbol("lambda"), List(argsExprs), ...body]) => {
-      let args = List.map(argsToStrings, argsExprs)
-      Lambda(environment, args, body)
-    }
+  | List([Symbol("lambda"), List(argsExprs), ...body]) =>
+    Lambda(environment, List.map(argsToStrings, argsExprs), body)
   | List([Symbol("lambda")]) =>
     raise(ArgumentError("Lambda needs args and body"))
   | List([func, ...argExprs]) =>
