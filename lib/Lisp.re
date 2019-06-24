@@ -79,18 +79,23 @@ let rec apply = (fn, args) =>
 and eval = (expression, environment) =>
   switch (expression) {
   | Number(i) => Number(i)
+
   | Symbol(s) => StringMap.find(s, environment)
+
   | List([Symbol("quote"), quotedValue]) => quotedValue
   | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument"))
+
   | List([Symbol("lambda"), List(argsExprs), ...body]) =>
     Lambda(environment, List.map(argsToStrings, argsExprs), body)
   | List([Symbol("lambda")]) =>
     raise(ArgumentError("Lambda needs args and body"))
+
   | List([func, ...argExprs]) =>
     let result = eval(func, environment);
     let args = List.map(expr => eval(expr, environment), argExprs);
     apply(result, args);
+
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
   | Function(_) => raise(ArgumentError("There's no syntax for functions"))
   | Lambda(_, _, _) => raise(ArgumentError("There's no syntax for lambda"))
