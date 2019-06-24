@@ -57,6 +57,11 @@ let rec eval = (expression, environment) =>
   switch (expression) {
   | Number(i) => Number(i)
   | Symbol(s) => StringMap.find(s, environment)
+  | List([Symbol("quote")]) =>
+    raise(ArgumentError("Quote must have one argument."))
+  | List([Symbol("quote"), quotedValue]) => quotedValue
+  | List([Symbol("quote"), ..._tooManyArgs]) =>
+    raise(ArgumentError("Quote only takes one argument."))
   | List([Symbol(functionName), ...argExprs]) =>
     let result = StringMap.find(functionName, environment);
     let args = List.map(expr => eval(expr, environment), argExprs);
@@ -69,8 +74,8 @@ let evalAndPrint = code => {
   let parsed = parse(code);
   let results =
     List.map(
-    expression => eval(expression, StandardLibrary.environment),
-    parsed,
-  );
+      expression => eval(expression, StandardLibrary.environment),
+      parsed,
+    );
   print_endline(string_of_expressions(results));
 };

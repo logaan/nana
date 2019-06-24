@@ -31,6 +31,8 @@ let run = () => {
   square |> parse |> string_of_expressions |> print_endline;
 
   evalAndPrint("(+ 1 1)");
+
+  evalAndPrint("(first (quote (1 2 3)))")
 };
 
 let () = run();

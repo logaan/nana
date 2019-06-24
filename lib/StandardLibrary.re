@@ -14,7 +14,7 @@ let lispMinus = args =>
 
 let lispFirst = args =>
   switch (args) {
-  | [first, ..._rest] => first
+  | [List([first, ..._rest])] => first
   | _ => raise(ArgumentError("first a list with at least one value"))
   };
 
