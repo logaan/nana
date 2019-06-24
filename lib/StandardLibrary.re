@@ -18,7 +18,7 @@ let lispFirst = args =>
   | _ => raise(ArgumentError("first a list with at least one value"))
   };
 
-let environment =
+let environment: environment =
   StringMap.empty
   |> StringMap.add("+", Function(lispPlus))
   |> StringMap.add("-", Function(lispMinus))

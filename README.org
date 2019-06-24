@@ -23,6 +23,13 @@
       - It sucks
     - the ocaml binary sucks too
   - Emacs editor support is pretty bad
+  - This doesn't compile though I think it should
+  #+BEGIN_SRC reason
+    let argsToEnv = (env: environment, names: list(string), values: list(expression)): environment =>
+      List.fold_left2(
+      (env, name, value) => StringMap.add(env, name, value),
+      StringMap.empty, names, values)
+  #+END_SRC
 * Repl
   - ~rtop~ seem to be the best option
     - But it can't find ~Str~
@@ -36,3 +43,8 @@
       #use "Lisp.re";
     #+END_SRC
   - Gave up and just wrote my own to string function
+* Todo
+**** TODO "There's no syntax for functions" is a good sign they shouldn't be part of the expression type
+**** TODO Should be able to define and call a lambda immediately
+**** TODO Implement let
+
