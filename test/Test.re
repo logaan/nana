@@ -33,6 +33,8 @@ let run = () => {
   evalAndPrint("(+ 1 1)");
 
   evalAndPrint("(first (quote (1 2 3)))");
+
+  evalAndPrint("(let (inc (lambda (n) (+ n 1))) (inc 6)) ");
 };
 
 let () = run();
