@@ -50,13 +50,13 @@ let rec apply = (fn, args) =>
   switch (fn) {
   | Function(fn) => fn(args)
   | Lambda(environment, argNames, body) =>
-    List.map(eval(_, argsToEnv(environment, argNames, args)), body)
+    List.map(evalPureExpression(_, argsToEnv(environment, argNames, args)), body)
     |> List.rev
     |> List.hd
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and eval = (expression, environment) =>
+and evalPureExpression = (expression, environment) =>
   switch (expression) {
   | Number(i) => Number(i)
 
@@ -68,8 +68,8 @@ and eval = (expression, environment) =>
 
   | List([Symbol("let"), List([Symbol(name), valueExpr]), bodyExpr]) =>
     let newEnv =
-      StringMap.add(name, eval(valueExpr, environment), environment);
-    eval(bodyExpr, newEnv);
+      StringMap.add(name, evalPureExpression(valueExpr, environment), environment);
+    evalPureExpression(bodyExpr, newEnv);
   | List([Symbol("let"), ..._wrongArgs]) =>
     raise(
       ArgumentError(
@@ -83,8 +83,8 @@ and eval = (expression, environment) =>
     raise(ArgumentError("Lambda needs args and body"))
 
   | List([func, ...argExprs]) =>
-    let result = eval(func, environment);
-    let args = List.map(expr => eval(expr, environment), argExprs);
+    let result = evalPureExpression(func, environment);
+    let args = List.map(expr => evalPureExpression(expr, environment), argExprs);
     apply(result, args);
 
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
@@ -96,7 +96,7 @@ let evalAndPrint = code => {
   let parsed = parse(code);
   let results =
     List.map(
-      expression => eval(expression, StandardLibrary.environment),
+      expression => evalPureExpression(expression, StandardLibrary.environment),
       parsed,
     );
   print_endline(string_of_expressions(results));
