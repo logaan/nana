@@ -50,6 +50,15 @@ let run = () => {
   );
 
   evalAndPrint("(println (quote foo))");
+
+  evalAndPrint(
+    "
+       (def square
+       (lambda (n)
+       (* n n)))
+
+       (println (square 4))"
+  );
 };
 
 let () = run();
