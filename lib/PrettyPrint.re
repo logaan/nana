@@ -16,14 +16,6 @@ let rec string_of_expression = expr =>
     ++ "], ["
     ++ String.concat(", ", List.map(string_of_expression, body))
     ++ "])"
-  | Macro(_env, args, body) =>
-    "Macro("
-    ++ "environment"
-    ++ ", ["
-    ++ String.concat(", ", args)
-    ++ "], ["
-    ++ String.concat(", ", List.map(string_of_expression, body))
-    ++ "])"
   };
 
 let string_of_expressions = exprs =>

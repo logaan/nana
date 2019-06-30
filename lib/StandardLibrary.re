@@ -18,8 +18,6 @@ let lispTimes = args =>
   | _ => raise(ArgumentError("* takes two numbers"))
   };
 
-let lispList = args => List(args);
-
 let lispFirst = args =>
   switch (args) {
   | [List([first, ..._rest])] => first
@@ -31,5 +29,4 @@ let environment: environment =
   |> StringMap.add("+", Function(lispPlus))
   |> StringMap.add("-", Function(lispMinus))
   |> StringMap.add("*", Function(lispTimes))
-  |> StringMap.add("list", Function(lispList))
   |> StringMap.add("first", Function(lispFirst));
