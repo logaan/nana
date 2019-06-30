@@ -1,12 +1,13 @@
 open Lib;
 open Lisp;
 open CoreTypes;
+open PrettyPrint;
 
 let square = "
-   (defn square (n)
-     (* n n))
+(defn square (n)
+  (* n n))
 
-   (println (square 2))
+(println (square 2))
    ";
 
 let squareParsed = [

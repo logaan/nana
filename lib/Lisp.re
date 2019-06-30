@@ -1,25 +1,5 @@
 open CoreTypes;
-
-let rec string_of_expression = expr =>
-  switch (expr) {
-  | Number(n) => "Number(" ++ string_of_int(n) ++ ")"
-  | Symbol(s) => "Symbol(" ++ s ++ ")"
-  | List(l) =>
-    let children = List.map(string_of_expression, l);
-    "List(" ++ String.concat(", ", children) ++ ")";
-  | Function(_) => "Function()"
-  | Lambda(_env, args, body) =>
-    "Lambda("
-    ++ "environment"
-    ++ ", ["
-    ++ String.concat(", ", args)
-    ++ "], ["
-    ++ String.concat(", ", List.map(string_of_expression, body))
-    ++ "])"
-  };
-
-let string_of_expressions = exprs =>
-  String.concat("\n", List.map(string_of_expression, exprs));
+open PrettyPrint;
 
 let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
@@ -86,12 +66,16 @@ and eval = (expression, environment) =>
   | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument"))
 
-  | List([Symbol("let"), List([Symbol(name), valueExpr]), bodyExpr]) => {
-      let newEnv = StringMap.add(name, eval(valueExpr, environment), environment);
-      eval(bodyExpr, newEnv);
-    }
+  | List([Symbol("let"), List([Symbol(name), valueExpr]), bodyExpr]) =>
+    let newEnv =
+      StringMap.add(name, eval(valueExpr, environment), environment);
+    eval(bodyExpr, newEnv);
   | List([Symbol("let"), ..._wrongArgs]) =>
-    raise(ArgumentError("Let takes a pair of name, value and a single body expression"))
+    raise(
+      ArgumentError(
+        "Let takes a pair of name, value and a single body expression",
+      ),
+    )
 
   | List([Symbol("lambda"), List(argsExprs), ...body]) =>
     Lambda(environment, List.map(argsToStrings, argsExprs), body)

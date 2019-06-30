@@ -45,6 +45,68 @@
   - Gave up and just wrote my own to string function
 * Todo
 **** TODO "There's no syntax for functions" is a good sign they shouldn't be part of the expression type
-**** TODO Should be able to define and call a lambda immediately
-**** TODO Implement let
+**** DONE Should be able to define and call a lambda immediately
+     CLOSED: [2019-06-30 Sun 10:17]
+**** DONE Implement let
+     CLOSED: [2019-06-30 Sun 10:17]
+**** Create ~evalExpression~ that always returns results wrapped in environment
+***** Is aware of ~def~ and uses it to add things to the env
+**** Change ~eval~ to be ~evalPureExpression~
+**** Create ~eval~ that takes a list of expressions
+***** Reduce over the expressions, passing the env to each new version, accumulating the results
+* Talk
+** Goal without macros
+   #+BEGIN_SRC lisp
+     (def square
+       (fn (n)
+         (* n n)))
 
+     (println (square 4))
+
+     ;; Output: 16
+   #+END_SRC
+** Goal
+   #+BEGIN_SRC lisp
+(defn square (n)
+  (* n n))
+
+(println (square 4))
+
+;; Output: 16
+   #+END_SRC
+** Read
+   #+BEGIN_SRC lisp
+[List(Symbol("defn"), Symbol("Square"), List(Symbol("n")),
+  List(Symbol("*"), Symbol("n"), Symbol("n"))),
+
+List(Symbol("println"), List(Symbol("square"), Number(4)))]
+   #+END_SRC
+** Eval
+*** Eventual
+   #+BEGIN_SRC lisp
+[Function(),
+ Number(16)]
+
+;; Output: 16
+   #+END_SRC
+*** Start with read
+   #+BEGIN_SRC lisp
+[List(Symbol("defn"), Symbol("Square"), List(Symbol("n")),
+  List(Symbol("*"), Symbol("n"), Symbol("n"))),
+
+List(Symbol("println"), List(Symbol("square"), Number(4)))]
+   #+END_SRC
+*** Start with read
+   #+BEGIN_SRC lisp
+[List(Symbol("defn"), Symbol("Square"), List(Symbol("n")),
+  List(Symbol("*"), Symbol("n"), Symbol("n"))),
+
+List(Symbol("println"), List(Symbol("square"), Number(4)))]
+   #+END_SRC
+*** Step 1
+   #+BEGIN_SRC lisp
+[List(Symbol("defn"), Symbol("Square"), List(Symbol("n")),
+  List(Symbol("*"), Symbol("n"), Symbol("n"))),
+
+List(Symbol("println"), List(Symbol("square"), Number(4)))]
+   #+END_SRC
