@@ -1,11 +1,10 @@
 module StringMap = Map.Make(String);
-type lispFn = list(expression) => expression
 
-and expression =
+type expression =
   | Number(int)
   | Symbol(string)
   | List(list(expression))
-  | Function(lispFn)
+  | Function(list(expression) => expression)
   | Lambda(environment, list(string), list(expression))
 
 and environment = StringMap.t(expression);
