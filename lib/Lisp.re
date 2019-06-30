@@ -98,12 +98,13 @@ let eval = code => {
   let parsed = parse(code);
   let (_lastEnvironment, lastResult) =
     List.fold_left(
-    ((environment, _lastResult), expression) =>
-      evalExpression(environment, expression),
-    (StandardLibrary.environment, Symbol("start")),
-    parsed,
-  );
+      ((environment, _lastResult), expression) =>
+        evalExpression(environment, expression),
+      (StandardLibrary.environment, Symbol("start")),
+      parsed,
+    );
   lastResult;
-}
+};
 
-let evalAndPrint = code => code |> eval |> string_of_expression |> print_endline;
+let evalAndPrint = code =>
+  code |> eval |> string_of_expression |> print_endline;
