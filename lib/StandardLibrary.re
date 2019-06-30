@@ -1,4 +1,5 @@
 open CoreTypes;
+open PrettyPrint;
 
 let lispPlus = args =>
   switch (args) {
@@ -24,9 +25,19 @@ let lispFirst = args =>
   | _ => raise(ArgumentError("first a list with at least one value"))
   };
 
+let lispPrintln = args =>
+  switch ( args) {
+  | [value] => {
+      value |> string_of_expression |> print_endline;
+      value
+    }
+  | _ => raise(ArgumentError("println only takes one argument"))
+  }
+
 let environment: environment =
   StringMap.empty
   |> StringMap.add("+", Function(lispPlus))
   |> StringMap.add("-", Function(lispMinus))
   |> StringMap.add("*", Function(lispTimes))
-  |> StringMap.add("first", Function(lispFirst));
+  |> StringMap.add("first", Function(lispFirst))
+  |> StringMap.add("println", Function(lispPrintln));

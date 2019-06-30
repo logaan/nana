@@ -48,6 +48,8 @@ let run = () => {
 
        (square a)",
   );
+
+  evalAndPrint("(println (quote foo))")
 };
 
 let () = run();

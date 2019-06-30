@@ -65,15 +65,6 @@
 
      ;; Output: 16
    #+END_SRC
-** Goal
-   #+BEGIN_SRC lisp
-(defn square (n)
-  (* n n))
-
-(println (square 4))
-
-;; Output: 16
-   #+END_SRC
 ** Read
    #+BEGIN_SRC lisp
 [List(Symbol("defn"), Symbol("Square"), List(Symbol("n")),
