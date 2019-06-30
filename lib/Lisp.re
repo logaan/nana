@@ -50,7 +50,10 @@ let rec apply = (fn, args) =>
   switch (fn) {
   | Function(fn) => fn(args)
   | Lambda(environment, argNames, body) =>
-    List.map(evalPureExpression(_, argsToEnv(environment, argNames, args)), body)
+    List.map(
+      evalPureExpression(_, argsToEnv(environment, argNames, args)),
+      body,
+    )
     |> List.rev
     |> List.hd
   | _ => raise(ArgumentError("Lists must start with functions"))
@@ -68,7 +71,11 @@ and evalPureExpression = (expression, environment) =>
 
   | List([Symbol("let"), List([Symbol(name), valueExpr]), bodyExpr]) =>
     let newEnv =
-      StringMap.add(name, evalPureExpression(valueExpr, environment), environment);
+      StringMap.add(
+        name,
+        evalPureExpression(valueExpr, environment),
+        environment,
+      );
     evalPureExpression(bodyExpr, newEnv);
   | List([Symbol("let"), ..._wrongArgs]) =>
     raise(
@@ -84,7 +91,8 @@ and evalPureExpression = (expression, environment) =>
 
   | List([func, ...argExprs]) =>
     let result = evalPureExpression(func, environment);
-    let args = List.map(expr => evalPureExpression(expr, environment), argExprs);
+    let args =
+      List.map(expr => evalPureExpression(expr, environment), argExprs);
     apply(result, args);
 
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
@@ -93,11 +101,11 @@ and evalPureExpression = (expression, environment) =>
   }
 
 and evalExpression = (environment, expression) =>
-  switch(expression) {
+  switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
     let result = evalPureExpression(valueExpr, environment);
     let newEnv = StringMap.add(name, result, environment);
-    (newEnv, result)
+    (newEnv, result);
   | expression => (environment, evalPureExpression(expression, environment))
   };
 
@@ -105,9 +113,10 @@ let evalAndPrint = code => {
   let parsed = parse(code);
   let (_lastEnvironment, lastResult) =
     List.fold_left(
-    ((environment, _lastResult), expression) => evalExpression(environment, expression),
-    (StandardLibrary.environment, Symbol("start")),
-    parsed
-  );
+      ((environment, _lastResult), expression) =>
+        evalExpression(environment, expression),
+      (StandardLibrary.environment, Symbol("start")),
+      parsed,
+    );
   print_endline(string_of_expression(lastResult));
 };

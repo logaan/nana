@@ -37,6 +37,17 @@ let run = () => {
 
   evalAndPrint("(let (inc (lambda (n) (+ n 1))) (inc 6)) ");
   evalAndPrint("(let (square (lambda (n) (* n n))) (square 6)) ");
+
+  evalAndPrint(
+    "
+       (def square
+         (lambda (n)
+           (* n n)))
+
+       (def a 4)
+
+       (square a)",
+  );
 };
 
 let () = run();
