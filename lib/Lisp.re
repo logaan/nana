@@ -90,14 +90,24 @@ and evalPureExpression = (expression, environment) =>
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
   | Function(_) => raise(ArgumentError("There's no syntax for functions"))
   | Lambda(_, _, _) => raise(ArgumentError("There's no syntax for lambda"))
+  }
+
+and evalExpression = (environment, expression) =>
+  switch(expression) {
+  | List([Symbol("def"), Symbol(name), valueExpr]) =>
+    let result = evalPureExpression(valueExpr, environment);
+    let newEnv = StringMap.add(name, result, environment);
+    (newEnv, result)
+  | expression => (environment, evalPureExpression(expression, environment))
   };
 
 let evalAndPrint = code => {
   let parsed = parse(code);
-  let results =
-    List.map(
-      expression => evalPureExpression(expression, StandardLibrary.environment),
-      parsed,
-    );
-  print_endline(string_of_expressions(results));
+  let (_lastEnvironment, lastResult) =
+    List.fold_left(
+    ((environment, _lastResult), expression) => evalExpression(environment, expression),
+    (StandardLibrary.environment, Symbol("start")),
+    parsed
+  );
+  print_endline(string_of_expression(lastResult));
 };
