@@ -57,7 +57,8 @@ let run = () => {
        (lambda (n)
        (* n n)))
 
-       (println (square 4))"
+       (println (square 4))
+       ",
   );
 };
 
