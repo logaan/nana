@@ -74,3 +74,56 @@
 
      ;; Output: 16
    #+END_SRC
+** Last line raw
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     "(println (square 4))"
+   #+END_SRC
+** Last line tokenised
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     ["(", "println", "(", "square", "4", ")", ")"]
+   #+END_SRC
+** Last line read
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     List([Symbol("println"), List([Symbol("Square"), Number(4)])])
+   #+END_SRC
+** Last line evaluated
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     ;; Output: 16
+     Number(16)
+   #+END_SRC
+** Last line eval 4
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     Number(4)
+   #+END_SRC
+** Last line eval steps
+   #+BEGIN_SRC lisp
+     List([Symbol("println"), List([Symbol("Square"), Number(4)])])
+   #+END_SRC
+** Eval
+   #+BEGIN_SRC reason
+     and eval = (expression, environment) =>
+       switch (expression) {
+       | Number(i) => Number(i)
+
+       | Symbol(s) => StringMap.find(s, environment)
+
+       | List([Symbol("lambda"), List(argsExprs), ...body]) =>
+         Lambda(environment, List.map(argsToStrings, argsExprs), body)
+
+       | List([func, ...argExprs]) =>
+         let result = eval(func, environment);
+         let args = List.map(expr => eval(expr, environment),
+                             argExprs);
+         apply(result, args);
+       }
+   #+END_SRC
