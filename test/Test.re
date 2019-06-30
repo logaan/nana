@@ -3,6 +3,9 @@ open Lisp;
 open CoreTypes;
 open PrettyPrint;
 
+let evalAndPrint = code =>
+  code |> evalOnceOff |> string_of_expression |> print_endline;
+
 let square = "
 (defn square (n)
   (* n n))

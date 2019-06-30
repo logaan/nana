@@ -1,5 +1,4 @@
 open CoreTypes;
-open PrettyPrint;
 
 let tokenize = str => {
   let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
@@ -94,17 +93,16 @@ and evalExpression = (environment, expression) =>
   | expression => (environment, evalPureExpression(expression, environment))
   };
 
-let eval = code => {
-  let parsed = parse(code);
-  let (_lastEnvironment, lastResult) =
-    List.fold_left(
-      ((environment, _lastResult), expression) =>
-        evalExpression(environment, expression),
-      (StandardLibrary.environment, Symbol("start")),
-      parsed,
-    );
-  lastResult;
+let eval = (environment, code) => {
+  List.fold_left(
+    ((environment, _lastResult), expression) =>
+      evalExpression(environment, expression),
+    (environment, Symbol("start")),
+    parse(code),
+  );
 };
 
-let evalAndPrint = code =>
-  code |> eval |> string_of_expression |> print_endline;
+let evalOnceOff = code => {
+  let (_, result) = eval(StandardLibrary.environment, code);
+  result
+}
