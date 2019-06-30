@@ -104,5 +104,5 @@ let eval = (environment, code) => {
 
 let evalOnceOff = code => {
   let (_, result) = eval(StandardLibrary.environment, code);
-  result
-}
+  result;
+};

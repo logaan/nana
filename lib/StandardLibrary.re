@@ -26,13 +26,12 @@ let lispFirst = args =>
   };
 
 let lispPrintln = args =>
-  switch ( args) {
-  | [value] => {
-      value |> string_of_expression |> print_endline;
-      value
-    }
+  switch (args) {
+  | [value] =>
+    value |> string_of_expression |> print_endline;
+    value;
   | _ => raise(ArgumentError("println only takes one argument"))
-  }
+  };
 
 let environment: environment =
   StringMap.empty
