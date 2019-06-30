@@ -1,9 +1,9 @@
 open CoreTypes;
 
-let tokenize = str => {
-  let expanded = Str.global_replace(Str.regexp("[()]"), " \\0 ", str);
-  Str.split(Str.regexp("[ \n]+"), expanded);
-};
+let tokenize = str =>
+  str
+  |> Str.global_replace(Str.regexp("[()]"), " \\0 ")
+  |> Str.split(Str.regexp("[ \n]+"));
 
 let isNumber = str => Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
 
