@@ -45,6 +45,20 @@ let run = () => {
 
        (square a)",
   );
+
+  evalAndPrint(
+    "
+       (def defn
+        (macro (name args body)
+          (list (quote def) name
+             (list (quote lambda) args body))))
+
+       (defn inc (n)
+         (+ 1 n))
+
+       (inc 7)
+       ",
+  );
 };
 
 let () = run();

@@ -101,7 +101,8 @@ and evalPureExpression = (expression, environment) =>
         result,
         List.map(expr => evalPureExpression(expr, environment), argExprs),
       )
-    | Macro(env, argNames, body) => evalPureExpression(expand(env, argNames, body, argExprs), environment)
+    | Macro(env, argNames, body) =>
+      evalPureExpression(expand(env, argNames, body, argExprs), environment)
     | _ => raise(ArgumentError("Lists must start with functions"))
     };
 
