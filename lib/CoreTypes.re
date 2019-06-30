@@ -7,6 +7,7 @@ and expression =
   | List(list(expression))
   | Function(lispFn)
   | Lambda(environment, list(string), list(expression))
+  | Macro(environment, list(string), list(expression))
 
 and environment = StringMap.t(expression);
 

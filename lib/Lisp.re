@@ -59,6 +59,15 @@ let rec apply = (fn, args) =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
+and expand = (environment, argNames, body, argExprs) => {
+  List.map(
+    evalPureExpression(_, argsToEnv(environment, argNames, argExprs)),
+    body,
+  )
+  |> List.rev
+  |> List.hd;
+}
+
 and evalPureExpression = (expression, environment) =>
   switch (expression) {
   | Number(i) => Number(i)
@@ -74,15 +83,32 @@ and evalPureExpression = (expression, environment) =>
   | List([Symbol("lambda")]) =>
     raise(ArgumentError("Lambda needs args and body"))
 
+  | List([Symbol("macro"), List(argsExprs), ...body]) =>
+    Macro(environment, List.map(argsToStrings, argsExprs), body)
+  | List([Symbol("macro")]) =>
+    raise(ArgumentError("Macro needs args and body"))
+
   | List([func, ...argExprs]) =>
     let result = evalPureExpression(func, environment);
-    let args =
-      List.map(expr => evalPureExpression(expr, environment), argExprs);
-    apply(result, args);
+    switch (result) {
+    | Function(_) =>
+      apply(
+        result,
+        List.map(expr => evalPureExpression(expr, environment), argExprs),
+      )
+    | Lambda(_, _, _) =>
+      apply(
+        result,
+        List.map(expr => evalPureExpression(expr, environment), argExprs),
+      )
+    | Macro(env, argNames, body) => evalPureExpression(expand(env, argNames, body, argExprs), environment)
+    | _ => raise(ArgumentError("Lists must start with functions"))
+    };
 
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
   | Function(_) => raise(ArgumentError("There's no syntax for functions"))
   | Lambda(_, _, _) => raise(ArgumentError("There's no syntax for lambda"))
+  | Macro(_, _, _) => raise(ArgumentError("There's no syntax for macro"))
   }
 
 and evalExpression = (environment, expression) =>
