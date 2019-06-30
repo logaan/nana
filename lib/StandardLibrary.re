@@ -1,31 +1,32 @@
 open CoreTypes;
 open PrettyPrint;
+open StringMap;
 
-let lispPlus = args =>
+let builtinPlus = args =>
   switch (args) {
   | [Number(a), Number(b)] => Number(a + b)
   | _ => raise(ArgumentError("+ takes two numbers"))
   };
 
-let lispMinus = args =>
+let builtinMinus = args =>
   switch (args) {
   | [Number(a), Number(b)] => Number(a - b)
   | _ => raise(ArgumentError("- takes two numbers"))
   };
 
-let lispTimes = args =>
+let builtinTimes = args =>
   switch (args) {
   | [Number(a), Number(b)] => Number(a * b)
   | _ => raise(ArgumentError("* takes two numbers"))
   };
 
-let lispFirst = args =>
+let builtinFirst = args =>
   switch (args) {
   | [List([first, ..._rest])] => first
   | _ => raise(ArgumentError("first a list with at least one value"))
   };
 
-let lispPrintln = args =>
+let builtinPrintln = args =>
   switch (args) {
   | [value] =>
     value |> string_of_expression |> print_endline;
@@ -33,10 +34,10 @@ let lispPrintln = args =>
   | _ => raise(ArgumentError("println only takes one argument"))
   };
 
-let environment: environment =
+let environment =
   StringMap.empty
-  |> StringMap.add("+", Function(lispPlus))
-  |> StringMap.add("-", Function(lispMinus))
-  |> StringMap.add("*", Function(lispTimes))
-  |> StringMap.add("first", Function(lispFirst))
-  |> StringMap.add("println", Function(lispPrintln));
+  |> add("+", Function(builtinPlus))
+  |> add("-", Function(builtinMinus))
+  |> add("*", Function(builtinTimes))
+  |> add("first", Function(builtinFirst))
+  |> add("println", Function(builtinPrintln));
