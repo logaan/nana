@@ -6,6 +6,4 @@ List(Symbol(defn), Symbol(square), List(Symbol(n)), List(Symbol(*), Symbol(n), S
 List(Symbol(println), List(Symbol(square), Number(2)))
 Number(2)
 Number(1)
-Number(7)
-Number(36)
 Number(16)

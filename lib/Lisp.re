@@ -69,21 +69,6 @@ and evalPureExpression = (expression, environment) =>
   | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument"))
 
-  | List([Symbol("let"), List([Symbol(name), valueExpr]), bodyExpr]) =>
-    let newEnv =
-      StringMap.add(
-        name,
-        evalPureExpression(valueExpr, environment),
-        environment,
-      );
-    evalPureExpression(bodyExpr, newEnv);
-  | List([Symbol("let"), ..._wrongArgs]) =>
-    raise(
-      ArgumentError(
-        "Let takes a pair of name, value and a single body expression",
-      ),
-    )
-
   | List([Symbol("lambda"), List(argsExprs), ...body]) =>
     Lambda(environment, List.map(argsToStrings, argsExprs), body)
   | List([Symbol("lambda")]) =>
