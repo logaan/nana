@@ -60,6 +60,8 @@ let run = () => {
        (println (square 4))
        ",
   );
+
+  ContinuationsTest.run();
 };
 
 let () = run();
