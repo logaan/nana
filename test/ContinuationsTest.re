@@ -86,3 +86,88 @@ let run = () => {
   printBool(step(step3_0) == step3_1);
   printBool(step(step3_1) == step3_2);
 };
+
+/*
+
+
+ // (+ (+ 1 2) 3)
+ let expressions = [
+   List([
+     Symbol("+"),
+     List([Symbol("+"), Number(1), Number(2)]),
+     Number(3),
+   ]),
+ ];
+
+ let step0 = {
+   left: [],
+   right: [
+     List([
+       Symbol("+"),
+       List([Symbol("+"), Number(1), Number(2)]),
+       Number(3),
+     ]),
+   ],
+   up: None,
+ };
+
+ let step1 = {
+   left: [],
+   right: [
+     Symbol("+"),
+     List([Symbol("+"), Number(1), Number(2)]),
+     Number(3),
+   ],
+   up: Some({left: [], right: [List([])], up: None}),
+ };
+
+ let step2 = {
+   left: [Function(builtinPlus)],
+   right: [List([Symbol("+"), Number(1), Number(2)]), Number(3)],
+   up: Some({left: [], right: [List([])], up: None}),
+ };
+
+ let step3 = {
+   left: [],
+   right: [Symbol("+"), Number(1), Number(2)],
+   up:
+     Some({
+       left: [Function(builtinPlus)],
+       right: [List([]), Number(3)],
+       up: Some({left: [], right: [List([])], up: None}),
+     }),
+ };
+
+ let step4 = {
+   left: [Function(builtinPlus)],
+   right: [Number(1), Number(2)],
+   up:
+     Some({
+       left: [Function(builtinPlus)],
+       right: [List([]), Number(3)],
+       up: Some({left: [], right: [List([])], up: None}),
+     }),
+ };
+
+ let step5 = {
+   left: [Function(builtinPlus), Number(1)],
+   right: [Number(2)],
+   up:
+     Some({
+       left: [Function(builtinPlus)],
+       right: [List([]), Number(3)],
+       up: Some({left: [], right: [List([])], up: None}),
+     }),
+ };
+
+ let step6 = {
+   left: [Function(builtinPlus), Number(1), Number(2)],
+   right: [],
+   up:
+     Some({
+       left: [Function(builtinPlus)],
+       right: [List([]), Number(3)],
+       up: Some({left: [], right: [List([])], up: None}),
+     }),
+ };
+ */
