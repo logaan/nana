@@ -47,7 +47,7 @@ let argsToStrings = exp =>
 
 let rec apply = (fn, args) =>
   switch (fn) {
-  | Function(fn) => fn(args)
+  | Function(fn) => StandardLibrary.builtinApply(fn, args)
   | Lambda(environment, argNames, body) =>
     List.map(
       evalPureExpression(_, argsToEnv(environment, argNames, args)),

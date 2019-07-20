@@ -1,10 +1,17 @@
 module StringMap = Map.Make(String);
 
+type builtinFunction =
+  | Plus
+  | Minus
+  | Times
+  | First
+  | Println;
+
 type expression =
   | Number(int)
   | Symbol(string)
   | List(list(expression))
-  | Function(list(expression) => expression)
+  | Function(builtinFunction)
   | Lambda(environment, list(string), list(expression))
 
 and environment = StringMap.t(expression);

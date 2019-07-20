@@ -54,21 +54,21 @@ let step3_1 = {
 };
 
 let step3_2 = {
-  left: [Function(builtinPlus)],
+  left: [Function(Plus)],
   right: [Number(1), Number(2)],
   environment,
   up: Some({left: [], right: [List([])], environment, up: None}),
 };
 
 let step3_3 = {
-  left: [Number(1), Function(builtinPlus)],
+  left: [Number(1), Function(Plus)],
   right: [Number(2)],
   environment,
   up: Some({left: [], right: [List([])], environment, up: None}),
 };
 
 let step3_4 = {
-  left: [Number(2), Number(1), Function(builtinPlus)],
+  left: [Number(2), Number(1), Function(Plus)],
   right: [],
   environment,
   up: Some({left: [], right: [List([])], environment, up: None}),
