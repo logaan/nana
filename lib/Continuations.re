@@ -4,6 +4,7 @@ open CoreTypes;
 type continuation = {
   left: list(expression),
   right: list(expression),
+  environment,
   up: option(continuation),
 };
 
@@ -13,15 +14,17 @@ let stepExpr = expr => expr;
 
 let step = cont =>
   switch (cont) {
-  | {left: _, right: [], up: _} => cont
-  | {left, right: [List(expr), ...tailExprs], up} => {
+  | {left: _, right: [], environment: _, up: _} => cont
+  | {left, right: [List(expr), ...tailExprs], environment, up} => {
       left: [],
       right: expr,
-      up: Some({left, right: [List([]), ...tailExprs], up}),
+      environment,
+      up: Some({left, right: [List([]), ...tailExprs], environment, up}),
     }
-  | {left, right: [expr, ...tailExprs], up} => {
+  | {left, right: [expr, ...tailExprs], environment, up} => {
       left: [stepExpr(expr), ...left],
       right: tailExprs,
+      environment,
       up,
     }
   };
