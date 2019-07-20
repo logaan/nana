@@ -74,6 +74,9 @@ let step3_4 = {
   up: Some({left: [], right: [List([])], environment, up: None}),
 };
 
+// This might be too much of a jump. What if there had been other elements after
+// the empty list in right?
+
 let step3_5 = {left: [Number(3)], right: [], environment, up: None};
 
 // The tests
@@ -86,6 +89,8 @@ let run = () => {
   printBool(step(step3_0) == step3_1);
   printBool(step(step3_1) == step3_2);
   printBool(step(step3_2) == step3_3);
+  printBool(step(step3_3) == step3_4);
+  printBool(step(step3_4) == step3_5);
 };
 
 /*
