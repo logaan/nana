@@ -128,5 +128,12 @@
        }
    #+END_SRC
 * Continuations
-#+BEGIN_SRC reason
-#+END_SRC
+ After trying them for a bit I think it'd be best to try and stick closely to
+ eval/apply. But any time they call one another to instead return a value. Also
+ it might help to use more types to represent the steps involved. So far
+ function calls it'd be Unevaluated -> FunctionEvaluating -> FunctionEvaluated
+ -> ArgumentsEvaluating -> ArgumentsEvaluated -> Applying Function. The reason
+ for the states like FunctionEvaluating is so that the apply function can
+ conveniently use it as an `up` value in the case where the first position is a
+ function call returning a function that should then be applied to the remaining
+ arguments.
