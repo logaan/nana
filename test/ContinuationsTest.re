@@ -85,6 +85,7 @@ let run = () => {
 
   printBool(step(step3_0) == step3_1);
   printBool(step(step3_1) == step3_2);
+  printBool(step(step3_2) == step3_3);
 };
 
 /*
