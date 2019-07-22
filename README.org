@@ -127,3 +127,21 @@
          apply(result, args);
        }
    #+END_SRC
+* Continuations
+  This branch comes after the one by steps. I'm basically thinking of
+  refactoring eval through these steps. Each one should maintain the same
+  outwards behavior:
+- Wrap return values in Stop
+- Wrap input expressions in Start
+- Re-write loops recursively
+- Create a co-routine that calls back to eval when it turns a "I should loop"
+  value
+- Return on calls to apply
+  - The calling state will need to be saved so we can return to it later
+- Return intermediate step values for other significant points as well
+  - Are there actually any?
+    - It's probably not worth pausing after looking up a builtin for a function
+      call
+    - Though maybe it would be for an inline lambda definition
+    - If it were like ~((make-foo) 1 2 3)~ then you'd want to pause after having
+      popped back up from inside ~(make-foo)~
