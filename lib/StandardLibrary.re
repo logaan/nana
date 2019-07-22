@@ -2,42 +2,22 @@ open CoreTypes;
 open PrettyPrint;
 open StringMap;
 
-let builtinPlus = args =>
-  switch (args) {
-  | [Number(a), Number(b)] => Number(a + b)
-  | _ => raise(ArgumentError("+ takes two numbers"))
-  };
-
-let builtinMinus = args =>
-  switch (args) {
-  | [Number(a), Number(b)] => Number(a - b)
-  | _ => raise(ArgumentError("- takes two numbers"))
-  };
-
-let builtinTimes = args =>
-  switch (args) {
-  | [Number(a), Number(b)] => Number(a * b)
-  | _ => raise(ArgumentError("* takes two numbers"))
-  };
-
-let builtinFirst = args =>
-  switch (args) {
-  | [List([first, ..._rest])] => first
-  | _ => raise(ArgumentError("first a list with at least one value"))
-  };
-
-let builtinPrintln = args =>
-  switch (args) {
-  | [value] =>
+let builtinApply = (func, args) =>
+  switch (func, args) {
+  | (Plus, [Number(a), Number(b)]) => Number(a + b)
+  | (Minus, [Number(a), Number(b)]) => Number(a - b)
+  | (Times, [Number(a), Number(b)]) => Number(a * b)
+  | (First, [List([first, ..._rest])]) => first
+  | (Println, [value]) =>
     value |> string_of_expression |> print_endline;
     value;
-  | _ => raise(ArgumentError("println only takes one argument"))
+  | _ => raise(ArgumentError("ArgumentError on a builtin function."))
   };
 
 let environment =
   StringMap.empty
-  |> add("+", Function(builtinPlus))
-  |> add("-", Function(builtinMinus))
-  |> add("*", Function(builtinTimes))
-  |> add("first", Function(builtinFirst))
-  |> add("println", Function(builtinPrintln));
+  |> add("+", Function(Plus))
+  |> add("-", Function(Minus))
+  |> add("*", Function(Times))
+  |> add("first", Function(First))
+  |> add("println", Function(Println));
