@@ -45,9 +45,9 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (fn, args) =>
+let rec apply = (fn, args): evalStep =>
   switch (fn) {
-  | Function(fn) => StandardLibrary.builtinApply(fn, args)
+  | Function(fn) => Final(StandardLibrary.builtinApply(fn, args))
   | Lambda(environment, argNames, body) =>
     List.map(
       evalPureExpression(_, argsToEnv(environment, argNames, args)),
@@ -58,26 +58,34 @@ let rec apply = (fn, args) =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalPureExpression = (expression, environment) =>
+and evalPureExpression = (expression, environment): evalStep =>
   switch (expression) {
-  | Number(i) => Number(i)
+  | Number(i) => Final(Number(i))
 
-  | Symbol(s) => StringMap.find(s, environment)
+  | Symbol(s) => Final(StringMap.find(s, environment))
 
-  | List([Symbol("quote"), quotedValue]) => quotedValue
+  | List([Symbol("quote"), quotedValue]) => Final(quotedValue)
   | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument"))
 
   | List([Symbol("lambda"), List(argsExprs), ...body]) =>
-    Lambda(environment, List.map(argsToStrings, argsExprs), body)
+    Final(Lambda(environment, List.map(argsToStrings, argsExprs), body))
   | List([Symbol("lambda")]) =>
     raise(ArgumentError("Lambda needs args and body"))
 
   | List([func, ...argExprs]) =>
-    let result = evalPureExpression(func, environment);
-    let args =
-      List.map(expr => evalPureExpression(expr, environment), argExprs);
-    apply(result, args);
+    switch (evalPureExpression(func, environment)) {
+    | Final(result) =>
+      let args =
+        List.map(
+          expr =>
+            switch (evalPureExpression(expr, environment)) {
+            | Final(expr) => expr
+            },
+          argExprs,
+        );
+      apply(result, args);
+    }
 
   | List(_) => raise(ArgumentError("Lists must start with symbols"))
   | Function(_) => raise(ArgumentError("There's no syntax for functions"))
@@ -87,10 +95,15 @@ and evalPureExpression = (expression, environment) =>
 and evalExpression = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    let result = evalPureExpression(valueExpr, environment);
-    let newEnv = StringMap.add(name, result, environment);
-    (newEnv, result);
-  | expression => (environment, evalPureExpression(expression, environment))
+    switch (evalPureExpression(valueExpr, environment)) {
+    | Final(result) =>
+      let newEnv = StringMap.add(name, result, environment);
+      (newEnv, result);
+    }
+  | expression =>
+    switch (evalPureExpression(expression, environment)) {
+    | Final(result) => (environment, result)
+    }
   };
 
 let eval = (environment, code) => {

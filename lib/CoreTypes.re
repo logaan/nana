@@ -23,3 +23,6 @@ type readResult =
 exception ArgumentError(string);
 
 exception UnbalancedParens;
+
+type evalStep =
+  | Final(expression);
