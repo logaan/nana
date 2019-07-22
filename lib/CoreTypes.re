@@ -24,5 +24,10 @@ exception ArgumentError(string);
 
 exception UnbalancedParens;
 
-type evalStep =
-  | Final(expression);
+// Eval may be called with start but never with Stop. It may return Stop but
+// never Start.
+type evalStepIn =
+  | Start(expression);
+
+type evalStepOut =
+  | Stop(expression);

@@ -45,12 +45,16 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (fn, args): evalStep =>
+let rec apply = (fn, args): evalStepOut =>
   switch (fn) {
-  | Function(fn) => Final(StandardLibrary.builtinApply(fn, args))
+  | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
   | Lambda(environment, argNames, body) =>
     List.map(
-      evalPureExpression(_, argsToEnv(environment, argNames, args)),
+      expr =>
+        evalPureExpression(
+          Start(expr),
+          argsToEnv(environment, argNames, args),
+        ),
       body,
     )
     |> List.rev
@@ -58,51 +62,53 @@ let rec apply = (fn, args): evalStep =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalPureExpression = (expression, environment): evalStep =>
+and evalPureExpression = (expression: evalStepIn, environment): evalStepOut =>
   switch (expression) {
-  | Number(i) => Final(Number(i))
+  | Start(Number(i)) => Stop(Number(i))
 
-  | Symbol(s) => Final(StringMap.find(s, environment))
+  | Start(Symbol(s)) => Stop(StringMap.find(s, environment))
 
-  | List([Symbol("quote"), quotedValue]) => Final(quotedValue)
-  | List([Symbol("quote"), ..._tooManyArgs]) =>
+  | Start(List([Symbol("quote"), quotedValue])) => Stop(quotedValue)
+  | Start(List([Symbol("quote"), ..._tooManyArgs])) =>
     raise(ArgumentError("Quote only takes one argument"))
 
-  | List([Symbol("lambda"), List(argsExprs), ...body]) =>
-    Final(Lambda(environment, List.map(argsToStrings, argsExprs), body))
-  | List([Symbol("lambda")]) =>
+  | Start(List([Symbol("lambda"), List(argsExprs), ...body])) =>
+    Stop(Lambda(environment, List.map(argsToStrings, argsExprs), body))
+  | Start(List([Symbol("lambda")])) =>
     raise(ArgumentError("Lambda needs args and body"))
 
-  | List([func, ...argExprs]) =>
-    switch (evalPureExpression(func, environment)) {
-    | Final(result) =>
+  | Start(List([func, ...argExprs])) =>
+    switch (evalPureExpression(Start(func), environment)) {
+    | Stop(result) =>
       let args =
         List.map(
           expr =>
-            switch (evalPureExpression(expr, environment)) {
-            | Final(expr) => expr
+            switch (evalPureExpression(Start(expr), environment)) {
+            | Stop(expr) => expr
             },
           argExprs,
         );
       apply(result, args);
     }
 
-  | List(_) => raise(ArgumentError("Lists must start with symbols"))
-  | Function(_) => raise(ArgumentError("There's no syntax for functions"))
-  | Lambda(_, _, _) => raise(ArgumentError("There's no syntax for lambda"))
+  | Start(List(_)) => raise(ArgumentError("Lists must start with symbols"))
+  | Start(Function(_)) =>
+    raise(ArgumentError("There's no syntax for functions"))
+  | Start(Lambda(_, _, _)) =>
+    raise(ArgumentError("There's no syntax for lambda"))
   }
 
 and evalExpression = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    switch (evalPureExpression(valueExpr, environment)) {
-    | Final(result) =>
+    switch (evalPureExpression(Start(valueExpr), environment)) {
+    | Stop(result) =>
       let newEnv = StringMap.add(name, result, environment);
       (newEnv, result);
     }
   | expression =>
-    switch (evalPureExpression(expression, environment)) {
-    | Final(result) => (environment, result)
+    switch (evalPureExpression(Start(expression), environment)) {
+    | Stop(result) => (environment, result)
     }
   };
 
