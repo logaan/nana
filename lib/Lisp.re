@@ -88,11 +88,14 @@ and evalPureExpression' = (expression, environment) =>
   | Start(List([Symbol("lambda")])) =>
     raise(ArgumentError("Lambda needs args and body"))
 
+  /* Incomplete. Should be able to pause mid way. */
   | Start(List([func, ...argExprs])) =>
     EvalArgs(evalPureExpressionKickoff(func, environment), [], argExprs)
 
+  /* Probably done? */
   | EvalArgs(fn, evaluated, []) => apply(fn, List.rev(evaluated))
 
+  /* Incomplete. Should be able to pause mid way. */
   | EvalArgs(fn, evaluated, [next, ...unevaluated]) =>
     EvalArgs(
       fn,
