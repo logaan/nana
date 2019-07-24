@@ -45,9 +45,11 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (fn, args): evalStep =>
+let rec apply = (fn, args) =>
   switch (fn) {
+  /* Done */
   | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
+
   | Lambda(environment, argNames, body) =>
     List.map(
       expr =>
@@ -62,7 +64,7 @@ let rec apply = (fn, args): evalStep =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalPureExpression' = (expression: evalStep, environment): evalStep =>
+and evalPureExpression' = (expression, environment) =>
   switch (expression) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
 
@@ -107,7 +109,7 @@ and evalPureExpression' = (expression: evalStep, environment): evalStep =>
     raise(ArgumentError("There's no syntax for lambda."))
   }
 
-and evalPureExpression = (step, environment): expression =>
+and evalPureExpression = (step, environment) =>
   switch (step) {
   | Stop(result) => result
   | EvalArgs(fn, evaluated, unevaluated) =>
