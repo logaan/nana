@@ -51,29 +51,31 @@ let run = () => {
          (println square)",
   );
 
-  /*
-   evalAndPrint(
-     "
-         (def square
-           (lambda (n)
-             (* n n)))
+  evalAndPrint("((lambda () (println 1)))");
 
-         (def a 4)
+  evalAndPrint("((lambda () ((lambda () (println 2)))))");
 
-         (square a)",
-   );
-
-     evalAndPrint(
-     "
+  evalAndPrint(
+    "
      (def square
-     (lambda (n)
-     (* n n)))
+       (lambda ()
+         (* 4 4)))
 
-     (println (square 4))
-     ",
-     );
+     (square)",
+  );
 
-       */
+  evalAndPrint(
+    "
+      (def square
+        (lambda (n)
+          (* n n)))
+
+      (square 4)",
+  );
+  /*
+     // ArgumentError("Unconsidered")
+     evalAndPrint("(println (println 3))");
+   */
 };
 
 let () = run();

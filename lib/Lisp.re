@@ -50,17 +50,20 @@ let rec apply = (fn, args) =>
   /* Done */
   | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
 
+  /* Incomplete. Should be able to pause mid way. */
   | Lambda(environment, argNames, body) =>
-    List.map(
-      expr =>
-        evalPureExpression'(
-          Start(expr),
-          argsToEnv(environment, argNames, args),
-        ),
-      body,
+    Stop(
+      List.map(
+        expr =>
+          evalPureExpressionKickoff(
+            expr,
+            argsToEnv(environment, argNames, args),
+          ),
+        body,
+      )
+      |> List.rev
+      |> List.hd,
     )
-    |> List.rev
-    |> List.hd
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
