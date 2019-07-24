@@ -67,6 +67,7 @@ let rec apply = (fn, args) =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
+/* Maybe evalStep */
 and evalPureExpression' = (expression, environment) =>
   switch (expression) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
@@ -111,6 +112,7 @@ and evalPureExpression' = (expression, environment) =>
     raise(ArgumentError("There's no syntax for lambda."))
   }
 
+/* Maybe evalStepper */
 and evalPureExpression = (step, environment) =>
   switch (step) {
   | Stop(result) => result
@@ -122,12 +124,14 @@ and evalPureExpression = (step, environment) =>
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   }
 
+/* Maybe eval */
 and evalPureExpressionKickoff = (expression, environment) =>
   evalPureExpression(
     evalPureExpression'(Start(expression), environment),
     environment,
   )
 
+/* Should maybe be evalTopLevel */
 and evalExpression = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
