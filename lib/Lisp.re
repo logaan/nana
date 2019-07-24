@@ -89,29 +89,16 @@ and evalPureExpression' = (expression, environment) =>
     raise(ArgumentError("Lambda needs args and body"))
 
   | Start(List([func, ...argExprs])) =>
-    switch (evalPureExpression'(Start(func), environment)) {
-    | Stop(fn) => EvalArgs(fn, [], argExprs)
-
-    /* I think this would be triggered by: ((makeAdder 2) 2) => 4 */
-    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered 1"))
-
-    | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
-    }
+    EvalArgs(evalPureExpressionKickoff(func, environment), [], argExprs)
 
   | EvalArgs(fn, evaluated, []) => apply(fn, List.rev(evaluated))
 
   | EvalArgs(fn, evaluated, [next, ...unevaluated]) =>
-    switch (evalPureExpression'(Start(next), environment)) {
-    | Stop(result) => EvalArgs(fn, [result, ...evaluated], unevaluated)
-
-    /* I haven't totally thought this through but I suspect that we should
-       return the argument's EvalArgs object with a pointer inside it to the outer
-       function call. Then add a new case here that handles bouncing up a level
-       once we've completed the inner function call */
-    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered 2"))
-
-    | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
-    }
+    EvalArgs(
+      fn,
+      [evalPureExpressionKickoff(next, environment), ...evaluated],
+      unevaluated,
+    )
 
   /* Done */
   | Start(List(_)) => raise(ArgumentError("Lists must start with symbols."))
