@@ -51,7 +51,7 @@ let rec apply = (fn, args): evalStepOut =>
   | Lambda(environment, argNames, body) =>
     List.map(
       expr =>
-        evalPureExpression(
+        evalPureExpression'(
           Start(expr),
           argsToEnv(environment, argNames, args),
         ),
@@ -62,7 +62,7 @@ let rec apply = (fn, args): evalStepOut =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalPureExpression = (expression: evalStepIn, environment): evalStepOut =>
+and evalPureExpression' = (expression: evalStepIn, environment): evalStepOut =>
   switch (expression) {
   /* Done */
   | Start(Number(i)) => Stop(Number(i))
@@ -82,12 +82,12 @@ and evalPureExpression = (expression: evalStepIn, environment): evalStepOut =>
     raise(ArgumentError("Lambda needs args and body"))
 
   | Start(List([func, ...argExprs])) =>
-    switch (evalPureExpression(Start(func), environment)) {
+    switch (evalPureExpression'(Start(func), environment)) {
     | Stop(result) =>
       let args =
         List.map(
           expr =>
-            switch (evalPureExpression(Start(expr), environment)) {
+            switch (evalPureExpression'(Start(expr), environment)) {
             | Stop(expr) => expr
             },
           argExprs,
@@ -103,18 +103,18 @@ and evalPureExpression = (expression: evalStepIn, environment): evalStepOut =>
     raise(ArgumentError("There's no syntax for lambda."))
   }
 
+and evalPureExpression = (expression: expression, environment): expression =>
+  switch (evalPureExpression'(Start(expression), environment)) {
+  | Stop(result) => result
+  }
+
 and evalExpression = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    switch (evalPureExpression(Start(valueExpr), environment)) {
-    | Stop(result) =>
-      let newEnv = StringMap.add(name, result, environment);
-      (newEnv, result);
-    }
-  | expression =>
-    switch (evalPureExpression(Start(expression), environment)) {
-    | Stop(result) => (environment, result)
-    }
+    let result = evalPureExpression(valueExpr, environment);
+    let newEnv = StringMap.add(name, result, environment);
+    (newEnv, result);
+  | expression => (environment, evalPureExpression(expression, environment))
   };
 
 /*
