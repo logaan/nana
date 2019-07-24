@@ -64,14 +64,18 @@ let rec apply = (fn, args): evalStepOut =>
 
 and evalPureExpression = (expression: evalStepIn, environment): evalStepOut =>
   switch (expression) {
+  /* Done */
   | Start(Number(i)) => Stop(Number(i))
 
+  /* Done */
   | Start(Symbol(s)) => Stop(StringMap.find(s, environment))
 
+  /* Done */
   | Start(List([Symbol("quote"), quotedValue])) => Stop(quotedValue)
   | Start(List([Symbol("quote"), ..._tooManyArgs])) =>
     raise(ArgumentError("Quote only takes one argument"))
 
+  /* Done */
   | Start(List([Symbol("lambda"), List(argsExprs), ...body])) =>
     Stop(Lambda(environment, List.map(argsToStrings, argsExprs), body))
   | Start(List([Symbol("lambda")])) =>
@@ -91,11 +95,12 @@ and evalPureExpression = (expression: evalStepIn, environment): evalStepOut =>
       apply(result, args);
     }
 
-  | Start(List(_)) => raise(ArgumentError("Lists must start with symbols"))
+  /* Done */
+  | Start(List(_)) => raise(ArgumentError("Lists must start with symbols."))
   | Start(Function(_)) =>
-    raise(ArgumentError("There's no syntax for functions"))
+    raise(ArgumentError("There's no syntax for functions."))
   | Start(Lambda(_, _, _)) =>
-    raise(ArgumentError("There's no syntax for lambda"))
+    raise(ArgumentError("There's no syntax for lambda."))
   }
 
 and evalExpression = (environment, expression) =>
@@ -112,6 +117,10 @@ and evalExpression = (environment, expression) =>
     }
   };
 
+/*
+   Takes unparsed code, evaluates it in the standard env and returns the result
+   and the (possibly modified) environment.
+ */
 let eval = (environment, code) => {
   List.fold_left(
     ((environment, _lastResult), expression) =>
@@ -121,6 +130,9 @@ let eval = (environment, code) => {
   );
 };
 
+/*
+   Takes unparsed code, evaluates it in the standard env and returns the result
+ */
 let evalOnceOff = code => {
   let (_, result) = eval(StandardLibrary.environment, code);
   result;
