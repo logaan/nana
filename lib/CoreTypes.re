@@ -24,10 +24,6 @@ exception ArgumentError(string);
 
 exception UnbalancedParens;
 
-// Eval may be called with start but never with Stop. It may return Stop but
-// never Start.
-type evalStepIn =
-  | Start(expression);
-
-type evalStepOut =
+type evalStep =
+  | Start(expression)
   | Stop(expression);

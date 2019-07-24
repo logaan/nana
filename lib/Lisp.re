@@ -45,7 +45,7 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (fn, args): evalStepOut =>
+let rec apply = (fn, args): evalStep =>
   switch (fn) {
   | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
   | Lambda(environment, argNames, body) =>
@@ -62,8 +62,10 @@ let rec apply = (fn, args): evalStepOut =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalPureExpression' = (expression: evalStepIn, environment): evalStepOut =>
+and evalPureExpression' = (expression: evalStep, environment): evalStep =>
   switch (expression) {
+  | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
+
   /* Done */
   | Start(Number(i)) => Stop(Number(i))
 
@@ -89,10 +91,13 @@ and evalPureExpression' = (expression: evalStepIn, environment): evalStepOut =>
           expr =>
             switch (evalPureExpression'(Start(expr), environment)) {
             | Stop(expr) => expr
+            | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
             },
           argExprs,
         );
       apply(result, args);
+
+    | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
     }
 
   /* Done */
@@ -106,6 +111,7 @@ and evalPureExpression' = (expression: evalStepIn, environment): evalStepOut =>
 and evalPureExpression = (expression: expression, environment): expression =>
   switch (evalPureExpression'(Start(expression), environment)) {
   | Stop(result) => result
+  | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   }
 
 and evalExpression = (environment, expression) =>
