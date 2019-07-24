@@ -23,7 +23,7 @@ let rec string_of_expression = expr =>
     ++ ", ["
     ++ String.concat(", ", args)
     ++ "], ["
-    ++ String.concat(", ", List.map(string_of_expression, body))
+    ++ string_of_expression(body)
     ++ "])"
   };
 

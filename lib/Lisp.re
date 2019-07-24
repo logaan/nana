@@ -47,64 +47,41 @@ let argsToStrings = exp =>
 
 let rec apply = (fn, args) =>
   switch (fn) {
-  /* Done */
   | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
 
-  /* Incomplete. Should be able to pause mid way. */
   | Lambda(environment, argNames, body) =>
-    Stop(
-      List.map(
-        expr =>
-          evalPureExpressionKickoff(
-            expr,
-            argsToEnv(environment, argNames, args),
-          ),
-        body,
-      )
-      |> List.rev
-      |> List.hd,
-    )
+    Stop(eval(body, argsToEnv(environment, argNames, args)))
+
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-/* Maybe evalStep */
-and evalPureExpression' = (expression, environment) =>
+and evalStep = (expression, environment) =>
   switch (expression) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
 
-  /* Done */
   | Start(Number(i)) => Stop(Number(i))
 
-  /* Done */
   | Start(Symbol(s)) => Stop(StringMap.find(s, environment))
 
-  /* Done */
   | Start(List([Symbol("quote"), quotedValue])) => Stop(quotedValue)
   | Start(List([Symbol("quote"), ..._tooManyArgs])) =>
     raise(ArgumentError("Quote only takes one argument"))
 
-  /* Done */
-  | Start(List([Symbol("lambda"), List(argsExprs), ...body])) =>
+  | Start(List([Symbol("lambda"), List(argsExprs), body])) =>
     Stop(Lambda(environment, List.map(argsToStrings, argsExprs), body))
   | Start(List([Symbol("lambda")])) =>
     raise(ArgumentError("Lambda needs args and body"))
+  | Start(List([Symbol("lambda"), ..._])) =>
+    raise(ArgumentError("Lambda needs args and a single body expression"))
 
-  /* Incomplete. Should be able to pause mid way. */
   | Start(List([func, ...argExprs])) =>
-    EvalArgs(evalPureExpressionKickoff(func, environment), [], argExprs)
+    EvalArgs(eval(func, environment), [], argExprs)
 
-  /* Probably done? */
   | EvalArgs(fn, evaluated, []) => apply(fn, List.rev(evaluated))
 
-  /* Incomplete. Should be able to pause mid way. */
   | EvalArgs(fn, evaluated, [next, ...unevaluated]) =>
-    EvalArgs(
-      fn,
-      [evalPureExpressionKickoff(next, environment), ...evaluated],
-      unevaluated,
-    )
+    EvalArgs(fn, [eval(next, environment), ...evaluated], unevaluated)
 
-  /* Done */
   | Start(List(_)) => raise(ArgumentError("Lists must start with symbols."))
   | Start(Function(_)) =>
     raise(ArgumentError("There's no syntax for functions."))
@@ -112,42 +89,30 @@ and evalPureExpression' = (expression, environment) =>
     raise(ArgumentError("There's no syntax for lambda."))
   }
 
-/* Maybe evalStepper */
-and evalPureExpression = (step, environment) =>
+and evalStepper = (step, environment) =>
   switch (step) {
   | Stop(result) => result
   | EvalArgs(fn, evaluated, unevaluated) =>
-    evalPureExpression(
-      evalPureExpression'(EvalArgs(fn, evaluated, unevaluated), environment),
+    evalStepper(
+      evalStep(EvalArgs(fn, evaluated, unevaluated), environment),
       environment,
     )
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   }
 
-/* Maybe eval */
-and evalPureExpressionKickoff = (expression, environment) =>
-  evalPureExpression(
-    evalPureExpression'(Start(expression), environment),
-    environment,
-  )
+and eval = (expression, environment) =>
+  evalStepper(evalStep(Start(expression), environment), environment)
 
 /* Should maybe be evalTopLevel */
 and evalExpression = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    let result = evalPureExpressionKickoff(valueExpr, environment);
+    let result = eval(valueExpr, environment);
     let newEnv = StringMap.add(name, result, environment);
     (newEnv, result);
-  | expression => (
-      environment,
-      evalPureExpressionKickoff(expression, environment),
-    )
+  | expression => (environment, eval(expression, environment))
   };
 
-/*
-   Takes unparsed code, evaluates it in the standard env and returns the result
-   and the (possibly modified) environment.
- */
 let eval = (environment, code) => {
   List.fold_left(
     ((environment, _lastResult), expression) =>
@@ -157,9 +122,6 @@ let eval = (environment, code) => {
   );
 };
 
-/*
-   Takes unparsed code, evaluates it in the standard env and returns the result
- */
 let evalOnceOff = code => {
   let (_, result) = eval(StandardLibrary.environment, code);
   result;

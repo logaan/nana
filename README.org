@@ -145,3 +145,10 @@
     - Though maybe it would be for an inline lambda definition
     - If it were like ~((make-foo) 1 2 3)~ then you'd want to pause after having
       popped back up from inside ~(make-foo)~
+* Continuations after first refactor
+  - Didn't go with differen types for Start and Stop because I thought we'd have
+    losts of intermediate ones. I think that might not actually be the case now,
+    so not having to worry about the invalid cases would be good.
+  - Only allowing one expression in the lambda body simplified things.
+  - Should implement a do form for multiple expressions
+  - Need to implement stack frames when we drop down into apply and pop back up
