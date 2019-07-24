@@ -26,4 +26,5 @@ exception UnbalancedParens;
 
 type evalStep =
   | Start(expression)
+  | EvalArgs(expression, list(expression), list(expression))
   | Stop(expression);

@@ -85,18 +85,17 @@ and evalPureExpression' = (expression: evalStep, environment): evalStep =>
 
   | Start(List([func, ...argExprs])) =>
     switch (evalPureExpression'(Start(func), environment)) {
-    | Stop(result) =>
-      let args =
-        List.map(
-          expr =>
-            switch (evalPureExpression'(Start(expr), environment)) {
-            | Stop(expr) => expr
-            | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
-            },
-          argExprs,
-        );
-      apply(result, args);
+    | Stop(fn) => EvalArgs(fn, [], argExprs)
+    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered"))
+    | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
+    }
 
+  | EvalArgs(fn, evaluated, []) => apply(fn, List.rev(evaluated))
+
+  | EvalArgs(fn, evaluated, [next, ...unevaluated]) =>
+    switch (evalPureExpression'(Start(next), environment)) {
+    | Stop(result) => EvalArgs(fn, [result, ...evaluated], unevaluated)
+    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered"))
     | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
     }
 
@@ -108,19 +107,33 @@ and evalPureExpression' = (expression: evalStep, environment): evalStep =>
     raise(ArgumentError("There's no syntax for lambda."))
   }
 
-and evalPureExpression = (expression: expression, environment): expression =>
-  switch (evalPureExpression'(Start(expression), environment)) {
+and evalPureExpression = (step, environment): expression =>
+  switch (step) {
   | Stop(result) => result
+  | EvalArgs(fn, evaluated, unevaluated) =>
+    evalPureExpression(
+      evalPureExpression'(EvalArgs(fn, evaluated, unevaluated), environment),
+      environment,
+    )
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   }
+
+and evalPureExpressionKickoff = (expression, environment) =>
+  evalPureExpression(
+    evalPureExpression'(Start(expression), environment),
+    environment,
+  )
 
 and evalExpression = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    let result = evalPureExpression(valueExpr, environment);
+    let result = evalPureExpressionKickoff(valueExpr, environment);
     let newEnv = StringMap.add(name, result, environment);
     (newEnv, result);
-  | expression => (environment, evalPureExpression(expression, environment))
+  | expression => (
+      environment,
+      evalPureExpressionKickoff(expression, environment),
+    )
   };
 
 /*

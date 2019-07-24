@@ -25,7 +25,6 @@ let squareParsed = [
 
 let run = () => {
   List.length(tokenize(square)) == 19 |> string_of_bool |> print_endline;
-
   let some_atoms = "42 foo    bar 99      ";
 
   List.length(parse(some_atoms)) == 4 |> string_of_bool |> print_endline;
@@ -35,31 +34,32 @@ let run = () => {
   square |> parse |> string_of_expressions |> print_endline;
 
   evalAndPrint("(+ 1 1)");
-
   evalAndPrint("(first (quote (1 2 3)))");
-
-  evalAndPrint(
-    "
-       (def square
-         (lambda (n)
-           (* n n)))
-
-       (def a 4)
-
-       (square a)",
-  );
-
   evalAndPrint("(println (quote foo))");
 
-  evalAndPrint(
-    "
-       (def square
-       (lambda (n)
-       (* n n)))
+  /*
+   evalAndPrint(
+     "
+         (def square
+           (lambda (n)
+             (* n n)))
 
-       (println (square 4))
-       ",
-  );
+         (def a 4)
+
+         (square a)",
+   );
+
+     evalAndPrint(
+     "
+     (def square
+     (lambda (n)
+     (* n n)))
+
+     (println (square 4))
+     ",
+     );
+
+       */
 };
 
 let () = run();
