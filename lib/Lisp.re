@@ -69,8 +69,6 @@ and evalStep = (expression, environment) =>
 
   | Start(List([Symbol("lambda"), List(argsExprs), body])) =>
     Stop(Lambda(environment, List.map(argsToStrings, argsExprs), body))
-  | Start(List([Symbol("lambda")])) =>
-    raise(ArgumentError("Lambda needs args and body"))
   | Start(List([Symbol("lambda"), ..._])) =>
     raise(ArgumentError("Lambda needs args and a single body expression"))
 
@@ -82,11 +80,10 @@ and evalStep = (expression, environment) =>
   | EvalArgs(fn, evaluated, [next, ...unevaluated]) =>
     EvalArgs(fn, [eval(next, environment), ...evaluated], unevaluated)
 
-  | Start(List(_)) => raise(ArgumentError("Lists must start with symbols."))
-  | Start(Function(_)) =>
-    raise(ArgumentError("There's no syntax for functions."))
+  | Start(List(_)) => raise(ArgumentError("Lists must start with a fn."))
+  | Start(Function(_)) => raise(ArgumentError("You can't eval a function."))
   | Start(Lambda(_, _, _)) =>
-    raise(ArgumentError("There's no syntax for lambda."))
+    raise(ArgumentError("You can't eval a lambda."))
   }
 
 and evalStepper = (step, environment) =>
