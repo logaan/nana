@@ -72,10 +72,9 @@ let run = () => {
 
       (square 4)",
   );
-  /*
-     // ArgumentError("Unconsidered")
-     evalAndPrint("(println (println 3))");
-   */
+
+  // ArgumentError("Unconsidered")
+  evalAndPrint("(println (println 3))");
 };
 
 let () = run();

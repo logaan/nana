@@ -91,7 +91,10 @@ and evalPureExpression' = (expression, environment) =>
   | Start(List([func, ...argExprs])) =>
     switch (evalPureExpression'(Start(func), environment)) {
     | Stop(fn) => EvalArgs(fn, [], argExprs)
-    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered"))
+
+    /* I think this would be triggered by: ((makeAdder 2) 2) => 4 */
+    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered 1"))
+
     | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
     }
 
@@ -100,7 +103,13 @@ and evalPureExpression' = (expression, environment) =>
   | EvalArgs(fn, evaluated, [next, ...unevaluated]) =>
     switch (evalPureExpression'(Start(next), environment)) {
     | Stop(result) => EvalArgs(fn, [result, ...evaluated], unevaluated)
-    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered"))
+
+    /* I haven't totally thought this through but I suspect that we should
+    return the argument's EvalArgs object with a pointer inside it to the outer
+    function call. Then add a new case here that handles bouncing up a level
+    once we've completed the inner function call */
+    | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered 2"))
+
     | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
     }
 
