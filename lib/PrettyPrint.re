@@ -1,5 +1,14 @@
 open CoreTypes;
 
+let string_of_builtin_function = fn =>
+  switch (fn) {
+  | Plus => "Plus"
+  | Minus => "Minus"
+  | Times => "Times"
+  | First => "First"
+  | Println => "Println"
+  };
+
 let rec string_of_expression = expr =>
   switch (expr) {
   | Number(n) => "Number(" ++ string_of_int(n) ++ ")"
@@ -7,7 +16,7 @@ let rec string_of_expression = expr =>
   | List(l) =>
     let children = List.map(string_of_expression, l);
     "List(" ++ String.concat(", ", children) ++ ")";
-  | Function(_) => "Function()"
+  | Function(fn) => "Function(" ++ string_of_builtin_function(fn) ++ ")"
   | Lambda(_env, args, body) =>
     "Lambda("
     ++ "environment"

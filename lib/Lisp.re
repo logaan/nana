@@ -105,9 +105,9 @@ and evalPureExpression' = (expression, environment) =>
     | Stop(result) => EvalArgs(fn, [result, ...evaluated], unevaluated)
 
     /* I haven't totally thought this through but I suspect that we should
-    return the argument's EvalArgs object with a pointer inside it to the outer
-    function call. Then add a new case here that handles bouncing up a level
-    once we've completed the inner function call */
+       return the argument's EvalArgs object with a pointer inside it to the outer
+       function call. Then add a new case here that handles bouncing up a level
+       once we've completed the inner function call */
     | EvalArgs(_, _, _) => raise(ArgumentError("Unconsidered 2"))
 
     | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
