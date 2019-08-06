@@ -100,8 +100,7 @@ and evalStepper = (step, environment) =>
 and eval = (expression, environment) =>
   evalStepper(evalStep(Start(expression), environment), environment)
 
-/* Should maybe be evalTopLevel */
-and evalExpression = (environment, expression) =>
+and evalTopLevel = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
     let result = eval(valueExpr, environment);
@@ -113,7 +112,7 @@ and evalExpression = (environment, expression) =>
 let eval = (environment, code) => {
   List.fold_left(
     ((environment, _lastResult), expression) =>
-      evalExpression(environment, expression),
+      evalTopLevel(environment, expression),
     (environment, Symbol("start")),
     parse(code),
   );
