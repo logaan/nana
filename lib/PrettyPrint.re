@@ -29,3 +29,14 @@ let rec string_of_expression = expr =>
 
 let string_of_expressions = exprs =>
   String.concat("\n", List.map(string_of_expression, exprs));
+
+let print_expression = expr => expr |> string_of_expression |> print_endline;
+
+let print_expressions = exprs =>
+  exprs |> string_of_expressions |> print_endline;
+
+let print_environment = environment =>
+  StringMap.iter(
+    (x, y) => Printf.printf("%s -> %s\n", x, string_of_expression(y)),
+    environment,
+  );
