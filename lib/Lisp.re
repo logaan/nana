@@ -91,6 +91,11 @@ and evalStep = (expression, environment) => {
 
   | Start(Symbol(s)) => Stop(StringMap.find(s, environment))
 
+  | Start(List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
+    Stop(eval(conditionalExpr, environment) == True ?
+         eval(thenExpr, environment) :
+         eval(elseExpr, environment))
+
   | Start(List([Symbol("quote"), quotedValue])) => Stop(quotedValue)
   | Start(List([Symbol("quote"), ..._tooManyArgs])) =>
     raise(ArgumentError("Quote only takes one argument"))
@@ -142,7 +147,7 @@ and evalStepper = (step, _environment) =>
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   }
 
-and eval = (expression, environment) =>
+and eval = (expression, environment):expression =>
   evalStepper(evalStep(Start(expression), environment), environment)
 
 and evalTopLevel = (environment, expression) =>

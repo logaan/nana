@@ -113,8 +113,6 @@ evalAndPrint(
     )
 // Expected output 4, 1, 1, 9
 
-
-
 evalAndPrint(
       "
        (println (= true true))
@@ -132,6 +130,11 @@ evalAndPrint(
                    (lambda (y) y)))
 ",
     )
+
+
+evalAndPrint("(if true (println (quote worked)) (println (quote broken)))")
+evalAndPrint("(if false (println (quote broken)) (println (quote worked)))")
+evalAndPrint("(if (= 1 1) (println (quote worked)) (println (quote broken)))")
   };
 };
 
