@@ -135,6 +135,30 @@ evalAndPrint(
 evalAndPrint("(if true (println (quote worked)) (println (quote broken)))")
 evalAndPrint("(if false (println (quote broken)) (println (quote worked)))")
 evalAndPrint("(if (= 1 1) (println (quote worked)) (println (quote broken)))")
+
+evalAndPrint("
+
+(def do
+  (lambda (a b)
+    b))
+
+(def Y
+  (lambda (f)
+    ((lambda (x) (f (lambda (n) ((x x) n))))
+     (lambda (x) (f (lambda (n) ((x x) n)))))))
+
+(def count-to-10
+  (Y
+    (lambda (count-to-10)
+      (lambda (n)
+        (do (println n)
+            (if (= n 10)
+              (quote worked)
+              (count-to-10 (+ n 1))))))))
+
+(count-to-10 0)
+
+       ")
   };
 };
 
