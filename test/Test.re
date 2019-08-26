@@ -90,6 +90,29 @@ let run = () => {
     )
   ) {
   | Not_found => print_endline("n not found")
+
+
+// Binding to n in inner should not change the binding of n in outer
+evalAndPrint(
+      "
+(def do
+  (lambda (a b)
+    b))
+
+(def inner
+  (lambda (n)
+    (println n)))
+
+(def outer
+  (lambda (n)
+       (do (inner (* n 4)) (println n))))
+
+(println (outer 1))
+
+       9",
+    )
+// Expected output 4, 1, 1, 9
+
   };
 };
 
