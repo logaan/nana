@@ -4,6 +4,7 @@ open StringMap;
 
 let builtinApply = (func, args) =>
   switch (func, args) {
+  | (Equals, [a, b]) => a == b ? True : False
   | (Plus, [Number(a), Number(b)]) => Number(a + b)
   | (Minus, [Number(a), Number(b)]) => Number(a - b)
   | (Times, [Number(a), Number(b)]) => Number(a * b)
@@ -16,6 +17,7 @@ let builtinApply = (func, args) =>
 
 let environment =
   StringMap.empty
+  |> add("=", Function(Equals))
   |> add("+", Function(Plus))
   |> add("-", Function(Minus))
   |> add("*", Function(Times))

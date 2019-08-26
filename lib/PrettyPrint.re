@@ -2,6 +2,7 @@ open CoreTypes;
 
 let string_of_builtin_function = fn =>
   switch (fn) {
+  | Equals => "Equals"
   | Plus => "Plus"
   | Minus => "Minus"
   | Times => "Times"
@@ -11,6 +12,8 @@ let string_of_builtin_function = fn =>
 
 let rec string_of_expression = expr =>
   switch (expr) {
+  | True => "True"
+  | False => "False"
   | Number(n) => "Number(" ++ string_of_int(n) ++ ")"
   | Symbol(s) => "Symbol(" ++ s ++ ")"
   | List(l) =>

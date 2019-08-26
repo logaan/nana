@@ -21,6 +21,10 @@ let rec read = (expressions, tokens) =>
 
   | [")", ...tail] => EndOfExpression(List.rev(expressions), tail)
 
+  | ["true", ...tail] => read([True, ...expressions], tail)
+
+  | ["false", ...tail] => read([False, ...expressions], tail)
+
   | [head, ...tail] when isNumber(head) =>
     read([Number(int_of_string(head)), ...expressions], tail)
 
@@ -81,6 +85,8 @@ and evalStep = (expression, environment) => {
   switch (expression) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
 
+  | Start(True) => Stop(True)
+  | Start(False) => Stop(False)
   | Start(Number(i)) => Stop(Number(i))
 
   | Start(Symbol(s)) => Stop(StringMap.find(s, environment))

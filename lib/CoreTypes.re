@@ -1,6 +1,7 @@
 module StringMap = Map.Make(String);
 
 type builtinFunction =
+  | Equals
   | Plus
   | Minus
   | Times
@@ -8,6 +9,8 @@ type builtinFunction =
   | Println;
 
 type expression =
+  | True
+  | False
   | Number(int)
   | Symbol(string)
   | List(list(expression))

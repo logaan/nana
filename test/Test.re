@@ -113,6 +113,25 @@ evalAndPrint(
     )
 // Expected output 4, 1, 1, 9
 
+
+
+evalAndPrint(
+      "
+       (println (= true true))
+       (println (= false false))
+       (println (= true false))
+       (println (= false true))
+
+       (println (= 1 1))
+       (println (= 1 2))
+
+       (println (= (lambda (n) n)
+                   (lambda (n) n)))
+
+       (println (= (lambda (n) n)
+                   (lambda (y) y)))
+",
+    )
   };
 };
 
