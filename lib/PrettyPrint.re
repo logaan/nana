@@ -43,3 +43,19 @@ let print_environment = environment =>
     (x, y) => Printf.printf("%s -> %s\n", x, string_of_expression(y)),
     environment,
   );
+
+let printEvalStep = (evalStep, environment) =>
+  switch (evalStep) {
+  | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
+  | Start(x) =>
+    print_endline("Start");
+    x |> string_of_expression |> print_endline;
+    print_environment(environment);
+  | EvalArgs(_environment, fn, left, right) =>
+    print_endline("EvalArgs");
+    print_expressions(left);
+    print_endline("------");
+    print_expressions(right);
+    print_endline("------");
+    fn |> string_of_expression |> print_endline;
+  };

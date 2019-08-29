@@ -1,5 +1,4 @@
 open CoreTypes;
-open PrettyPrint;
 
 let tokenize = str =>
   str
@@ -48,22 +47,6 @@ let argsToStrings = exp =>
   switch (exp) {
   | Symbol(name) => name
   | _ => raise(ArgumentError("All arguments must be symbols"))
-  };
-
-let printEvalStep = (evalStep, environment) =>
-  switch (evalStep) {
-  | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
-  | Start(x) =>
-    print_endline("Start");
-    x |> string_of_expression |> print_endline;
-    print_environment(environment);
-  | EvalArgs(_environment, fn, left, right) =>
-    print_endline("EvalArgs");
-    print_expressions(left);
-    print_endline("------");
-    print_expressions(right);
-    print_endline("------");
-    fn |> string_of_expression |> print_endline;
   };
 
 let rec apply = (fn, args) =>
@@ -126,7 +109,7 @@ and evalStep = (expression, environment) => {
 }
 
 and evalStepper = (step, _environment) => {
-  print_endline("evalStepper");
+  // print_endline("evalStepper");
   switch (step) {
   | Stop(result) => result
   | EvalArgs(environment, fn, evaluated, unevaluated) =>
@@ -142,8 +125,8 @@ and evalStepper = (step, _environment) => {
 }
 
 and eval = (expression, environment): expression => {
-  print_endline("eval");
   evalStepper(evalStep(Start(expression), environment), environment);
+  // print_endline("eval");
 }
 
 and evalTopLevel = (environment, expression) =>
