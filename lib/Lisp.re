@@ -62,8 +62,8 @@ let rec apply = (fn, args) =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalStep = (expression, environment) => {
-  switch (expression) {
+and evalStep = (evalStep, environment) => {
+  switch (evalStep) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
 
   | Start(True) => Stop(True)
@@ -108,7 +108,7 @@ and evalStep = (expression, environment) => {
   };
 }
 
-and evalStepper = (step, _environment) => {
+and evalStepper = step => {
   // print_endline("evalStepper");
   switch (step) {
   | Stop(result) => result
@@ -118,15 +118,16 @@ and evalStepper = (step, _environment) => {
         EvalArgs(environment, fn, evaluated, unevaluated),
         environment,
       ),
-      environment,
     )
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   };
 }
 
 and eval = (expression, environment): expression => {
-  evalStepper(evalStep(Start(expression), environment), environment);
   // print_endline("eval");
+  evalStepper(
+    evalStep(Start(expression), environment),
+  );
 }
 
 and evalTopLevel = (environment, expression) =>
