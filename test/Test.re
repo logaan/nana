@@ -89,11 +89,11 @@ let run = () => {
      (println (do (square 4) (square n)))",
     )
   ) {
-  | Not_found => print_endline("n not found")
+  | Not_found =>
+    print_endline("n not found");
 
-
-// Binding to n in inner should not change the binding of n in outer
-evalAndPrint(
+    // Binding to n in inner should not change the binding of n in outer
+    evalAndPrint(
       "
 (def do
   (lambda (a b)
@@ -110,10 +110,10 @@ evalAndPrint(
 (println (outer 1))
 
        9",
-    )
-// Expected output 4, 1, 1, 9
+    );
+    // Expected output 4, 1, 1, 9
 
-evalAndPrint(
+    evalAndPrint(
       "
        (println (= true true))
        (println (= false false))
@@ -129,14 +129,20 @@ evalAndPrint(
        (println (= (lambda (n) n)
                    (lambda (y) y)))
 ",
-    )
+    );
 
+    evalAndPrint(
+      "(if true (println (quote worked)) (println (quote broken)))",
+    );
+    evalAndPrint(
+      "(if false (println (quote broken)) (println (quote worked)))",
+    );
+    evalAndPrint(
+      "(if (= 1 1) (println (quote worked)) (println (quote broken)))",
+    );
 
-evalAndPrint("(if true (println (quote worked)) (println (quote broken)))")
-evalAndPrint("(if false (println (quote broken)) (println (quote worked)))")
-evalAndPrint("(if (= 1 1) (println (quote worked)) (println (quote broken)))")
-
-evalAndPrint("
+    evalAndPrint(
+      "
 
 (def do
   (lambda (a b)
@@ -158,8 +164,11 @@ evalAndPrint("
 
 (count-to-10 0)
 
-       ")
+       ",
+    );
   };
 };
 
 let () = run();
+
+/* Calling eval on the function and on each of the args */

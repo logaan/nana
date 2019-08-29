@@ -1,5 +1,5 @@
 open CoreTypes;
-// open PrettyPrint;
+open PrettyPrint;
 
 let tokenize = str =>
   str
@@ -50,38 +50,36 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
+let printEvalStep = (evalStep, environment) =>
+  switch (evalStep) {
+  | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
+  | Start(x) =>
+    print_endline("Start");
+    x |> string_of_expression |> print_endline;
+    print_environment(environment);
+  | EvalArgs(_environment, fn, left, right) =>
+    print_endline("EvalArgs");
+    print_expressions(left);
+    print_endline("------");
+    print_expressions(right);
+    print_endline("------");
+    fn |> string_of_expression |> print_endline;
+  };
+
 let rec apply = (fn, args) =>
   switch (fn) {
   | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
 
   | Lambda(environment, argNames, body) =>
-    // This should be calling evalStep but... hmm. Putting that result at the
-    // top of a stack, with apply below it?
-    // body |> string_of_expression |> print_endline;
+    // I think it's actually fine to ignore the stack here. That maybe gets us
+    // tco? :S
     let merged = argsToEnv(environment, argNames, args);
-    // print_environment(merged);
     evalStep(Start(body), merged);
 
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
 and evalStep = (expression, environment) => {
-  // print_endline("evalStep");
-  // switch (expression) {
-  // | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
-  // | Start(x) =>
-  //   print_endline("Start");
-  //   x |> string_of_expression |> print_endline;
-  //   print_environment(environment);
-  // | EvalArgs(_environment, fn, left, right) =>
-  //   print_endline("EvalArgs");
-  //   print_expressions(left);
-  //   print_endline("------");
-  //   print_expressions(right);
-  //   print_endline("------");
-  //   fn |> string_of_expression |> print_endline;
-  // };
-  // print_endline("");
   switch (expression) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
 
@@ -92,9 +90,10 @@ and evalStep = (expression, environment) => {
   | Start(Symbol(s)) => Stop(StringMap.find(s, environment))
 
   | Start(List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
-    Stop(eval(conditionalExpr, environment) == True ?
-         eval(thenExpr, environment) :
-         eval(elseExpr, environment))
+    Stop(
+      eval(conditionalExpr, environment) == True
+        ? eval(thenExpr, environment) : eval(elseExpr, environment),
+    )
 
   | Start(List([Symbol("quote"), quotedValue])) => Stop(quotedValue)
   | Start(List([Symbol("quote"), ..._tooManyArgs])) =>
@@ -126,14 +125,8 @@ and evalStep = (expression, environment) => {
   };
 }
 
-/* I think what's happening is that eval is calling evalStep with a new
-     environment but that environment is getting lost. I think maybe EvalArgs
-     should contain an environment that gets used when calling back.
-
-     Probably this is where a stack is important. Otherwise each method call will
-     just add to the environment on and on.
-   */
-and evalStepper = (step, _environment) =>
+and evalStepper = (step, _environment) => {
+  print_endline("evalStepper");
   switch (step) {
   | Stop(result) => result
   | EvalArgs(environment, fn, evaluated, unevaluated) =>
@@ -145,10 +138,13 @@ and evalStepper = (step, _environment) =>
       environment,
     )
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
-  }
+  };
+}
 
-and eval = (expression, environment):expression =>
-  evalStepper(evalStep(Start(expression), environment), environment)
+and eval = (expression, environment): expression => {
+  print_endline("eval");
+  evalStepper(evalStep(Start(expression), environment), environment);
+}
 
 and evalTopLevel = (environment, expression) =>
   switch (expression) {
@@ -159,7 +155,7 @@ and evalTopLevel = (environment, expression) =>
   | expression => (environment, eval(expression, environment))
   };
 
-let eval = (environment, code) => {
+let evalExpressions = (environment, code) => {
   List.fold_left(
     ((environment, _lastResult), expression) =>
       evalTopLevel(environment, expression),
@@ -169,6 +165,6 @@ let eval = (environment, code) => {
 };
 
 let evalOnceOff = code => {
-  let (_, result) = eval(StandardLibrary.environment, code);
+  let (_, result) = evalExpressions(StandardLibrary.environment, code);
   result;
 };

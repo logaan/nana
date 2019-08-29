@@ -2,5 +2,4 @@
 
 dune clean && \
 ./scripts/reformat && \
-dune runtest && \
 dune exec bin/Hello.exe
