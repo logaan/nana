@@ -114,20 +114,20 @@ and evalStepper = step => {
   | Stop(env, result) => (env, result)
   | EvalArgs(env, fn, evaluated, unevaluated) =>
     evalStepper(evalStep(EvalArgs(env, fn, evaluated, unevaluated)))
-  | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
+  | Start(_) => evalStepper(evalStep(step))
   };
 }
 
 and eval = (expression, env): expression => {
   // print_endline("eval");
-  let (_, result) = evalStepper(evalStep(Start(env, expression)));
+  let (_, result) = evalStepper(Start(env, expression));
   result;
 };
 
 let evalExpressions = (environment, code) => {
   List.fold_left(
     ((env, _lastResult), expression) =>
-      evalStepper(evalStep(Start(env, expression))),
+      evalStepper(Start(env, expression)),
     (environment, Symbol("start")),
     parse(code),
   );
