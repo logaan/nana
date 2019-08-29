@@ -75,9 +75,8 @@ and evalStep = evalStep => {
   | Start(env, List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
     Stop(
       env,
-      evalStepper(Start(env, conditionalExpr)) == True
-        ? evalStepper(Start(env, thenExpr))
-        : evalStepper(Start(env, elseExpr)),
+      eval(conditionalExpr, env) == True
+        ? eval(thenExpr, env) : eval(elseExpr, env),
     )
 
   | Start(e, List([Symbol("quote"), quotedValue])) => Stop(e, quotedValue)
@@ -90,17 +89,12 @@ and evalStep = evalStep => {
     raise(ArgumentError("Lambda needs args and a single body expression"))
 
   | Start(env, List([func, ...argExprs])) =>
-    EvalArgs(env, evalStepper(Start(env, func)), [], argExprs)
+    EvalArgs(env, eval(func, env), [], argExprs)
 
   | EvalArgs(env, fn, evaluated, []) => apply(env, fn, List.rev(evaluated))
 
   | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) =>
-    EvalArgs(
-      env,
-      fn,
-      [evalStepper(Start(env, next)), ...evaluated],
-      unevaluated,
-    )
+    EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated)
 
   | Start(_, List(_)) => raise(ArgumentError("Lists must start with a fn."))
   | Start(_, Function(_)) =>
@@ -116,17 +110,22 @@ and evalStepper = step => {
   | Stop(_, result) => result
   | EvalArgs(env, fn, evaluated, unevaluated) =>
     evalStepper(evalStep(EvalArgs(env, fn, evaluated, unevaluated)))
-  | Start(_) => evalStepper(evalStep(step))
+  | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   };
+}
+
+and eval = (expression, env): expression => {
+  // print_endline("eval");
+  evalStepper(evalStep(Start(env, expression)));
 }
 
 and evalTopLevel = (environment, expression) =>
   switch (expression) {
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    let result = evalStepper(Start(environment, valueExpr));
+    let result = eval(valueExpr, environment);
     let newEnv = StringMap.add(name, result, environment);
     (newEnv, result);
-  | expression => (environment, evalStepper(Start(environment, expression)))
+  | expression => (environment, eval(expression, environment))
   };
 
 let evalExpressions = (environment, code) => {
