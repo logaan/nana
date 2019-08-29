@@ -72,6 +72,11 @@ and evalStep = evalStep => {
 
   | Start(env, Symbol(s)) => Stop(env, StringMap.find(s, env))
 
+  | Start(env, List([Symbol("def"), Symbol(name), valueExpr])) =>
+    let result = eval(valueExpr, env);
+    let newEnv = StringMap.add(name, result, env);
+    Stop(newEnv, result);
+
   | Start(env, List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
     Stop(
       env,
@@ -105,9 +110,8 @@ and evalStep = evalStep => {
 }
 
 and evalStepper = step => {
-  // print_endline("evalStepper");
   switch (step) {
-  | Stop(_, result) => result
+  | Stop(env, result) => (env, result)
   | EvalArgs(env, fn, evaluated, unevaluated) =>
     evalStepper(evalStep(EvalArgs(env, fn, evaluated, unevaluated)))
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
@@ -116,22 +120,14 @@ and evalStepper = step => {
 
 and eval = (expression, env): expression => {
   // print_endline("eval");
-  evalStepper(evalStep(Start(env, expression)));
-}
-
-and evalTopLevel = (environment, expression) =>
-  switch (expression) {
-  | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    let result = eval(valueExpr, environment);
-    let newEnv = StringMap.add(name, result, environment);
-    (newEnv, result);
-  | expression => (environment, eval(expression, environment))
-  };
+  let (_, result) = evalStepper(evalStep(Start(env, expression)));
+  result;
+};
 
 let evalExpressions = (environment, code) => {
   List.fold_left(
-    ((environment, _lastResult), expression) =>
-      evalTopLevel(environment, expression),
+    ((env, _lastResult), expression) =>
+      evalStepper(evalStep(Start(env, expression))),
     (environment, Symbol("start")),
     parse(code),
   );
