@@ -44,10 +44,10 @@ let print_environment = environment =>
     environment,
   );
 
-let printEvalStep = (evalStep, environment) =>
+let printEvalStep = evalStep =>
   switch (evalStep) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
-  | Start(x) =>
+  | Start(environment, x) =>
     print_endline("Start");
     x |> string_of_expression |> print_endline;
     print_environment(environment);

@@ -49,61 +49,57 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (fn, args) =>
+let rec apply = (env, fn, args) =>
   switch (fn) {
-  | Function(fn) => Stop(StandardLibrary.builtinApply(fn, args))
+  | Function(fn) => Stop(env, StandardLibrary.builtinApply(fn, args))
 
   | Lambda(environment, argNames, body) =>
     // I think it's actually fine to ignore the stack here. That maybe gets us
     // tco? :S
     let merged = argsToEnv(environment, argNames, args);
-    evalStep(Start(body), merged);
+    evalStep(Start(merged, body));
 
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalStep = (evalStep, environment) => {
+and evalStep = evalStep => {
   switch (evalStep) {
-  | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
+  | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
 
-  | Start(True) => Stop(True)
-  | Start(False) => Stop(False)
-  | Start(Number(i)) => Stop(Number(i))
+  | Start(e, True) => Stop(e, True)
+  | Start(e, False) => Stop(e, False)
+  | Start(e, Number(i)) => Stop(e, Number(i))
 
-  | Start(Symbol(s)) => Stop(StringMap.find(s, environment))
+  | Start(env, Symbol(s)) => Stop(env, StringMap.find(s, env))
 
-  | Start(List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
+  | Start(env, List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
     Stop(
-      eval(conditionalExpr, environment) == True
-        ? eval(thenExpr, environment) : eval(elseExpr, environment),
+      env,
+      eval(conditionalExpr, env) == True
+        ? eval(thenExpr, env) : eval(elseExpr, env),
     )
 
-  | Start(List([Symbol("quote"), quotedValue])) => Stop(quotedValue)
-  | Start(List([Symbol("quote"), ..._tooManyArgs])) =>
+  | Start(e, List([Symbol("quote"), quotedValue])) => Stop(e, quotedValue)
+  | Start(_, List([Symbol("quote"), ..._tooManyArgs])) =>
     raise(ArgumentError("Quote only takes one argument"))
 
-  | Start(List([Symbol("lambda"), List(argsExprs), body])) =>
-    Stop(Lambda(environment, List.map(argsToStrings, argsExprs), body))
-  | Start(List([Symbol("lambda"), ..._])) =>
+  | Start(env, List([Symbol("lambda"), List(argsExprs), body])) =>
+    Stop(env, Lambda(env, List.map(argsToStrings, argsExprs), body))
+  | Start(_, List([Symbol("lambda"), ..._])) =>
     raise(ArgumentError("Lambda needs args and a single body expression"))
 
-  | Start(List([func, ...argExprs])) =>
-    EvalArgs(environment, eval(func, environment), [], argExprs)
+  | Start(env, List([func, ...argExprs])) =>
+    EvalArgs(env, eval(func, env), [], argExprs)
 
-  | EvalArgs(_environment, fn, evaluated, []) =>
-    apply(fn, List.rev(evaluated))
+  | EvalArgs(env, fn, evaluated, []) => apply(env, fn, List.rev(evaluated))
 
-  | EvalArgs(environment, fn, evaluated, [next, ...unevaluated]) =>
-    EvalArgs(
-      environment,
-      fn,
-      [eval(next, environment), ...evaluated],
-      unevaluated,
-    )
+  | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) =>
+    EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated)
 
-  | Start(List(_)) => raise(ArgumentError("Lists must start with a fn."))
-  | Start(Function(_)) => raise(ArgumentError("You can't eval a function."))
-  | Start(Lambda(_, _, _)) =>
+  | Start(_, List(_)) => raise(ArgumentError("Lists must start with a fn."))
+  | Start(_, Function(_)) =>
+    raise(ArgumentError("You can't eval a function."))
+  | Start(_, Lambda(_, _, _)) =>
     raise(ArgumentError("You can't eval a lambda."))
   };
 }
@@ -111,23 +107,16 @@ and evalStep = (evalStep, environment) => {
 and evalStepper = step => {
   // print_endline("evalStepper");
   switch (step) {
-  | Stop(result) => result
-  | EvalArgs(environment, fn, evaluated, unevaluated) =>
-    evalStepper(
-      evalStep(
-        EvalArgs(environment, fn, evaluated, unevaluated),
-        environment,
-      ),
-    )
+  | Stop(_, result) => result
+  | EvalArgs(env, fn, evaluated, unevaluated) =>
+    evalStepper(evalStep(EvalArgs(env, fn, evaluated, unevaluated)))
   | Start(_) => raise(ArgumentError("Won't be returned by ePE"))
   };
 }
 
-and eval = (expression, environment): expression => {
+and eval = (expression, env): expression => {
   // print_endline("eval");
-  evalStepper(
-    evalStep(Start(expression), environment),
-  );
+  evalStepper(evalStep(Start(env, expression)));
 }
 
 and evalTopLevel = (environment, expression) =>

@@ -28,6 +28,6 @@ exception ArgumentError(string);
 exception UnbalancedParens;
 
 type evalStep =
-  | Start(expression)
+  | Start(environment, expression)
   | EvalArgs(environment, expression, list(expression), list(expression))
-  | Stop(expression);
+  | Stop(environment, expression);
