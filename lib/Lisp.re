@@ -88,9 +88,6 @@ and evalStart = (env, expr) =>
   | List([Symbol("lambda"), ..._]) =>
     raise(ArgumentError("Lambda needs args and a single body expression"))
 
-  | List([func, ...argExprs]) =>
-    EvalArgs(env, eval(func, env), [], argExprs)
-
   | List(_) => raise(ArgumentError("Lists must start with a fn."))
   | Function(_) => raise(ArgumentError("You can't eval a function."))
   | Lambda(_, _, _) => raise(ArgumentError("You can't eval a lambda."))
@@ -98,6 +95,15 @@ and evalStart = (env, expr) =>
 
 and evalFrame = stack =>
   switch (stack) {
+  | [Start(env, List([func, ...argExprs])), ...stack] => [
+      Start(env, func),
+      EvalFn(env, argExprs),
+      ...stack,
+    ]
+  | [Stop(env, result), EvalFn(_, argExprs), ...stack] => [
+      EvalArgs(env, result, [], argExprs),
+      ...stack,
+    ]
   | [Start(env, expr), ...stack] => [evalStart(env, expr)] @ stack
   | [EvalArgs(env, fn, evaluated, [next, ...unevaluated]), ...stack] => [
       Start(env, next),
@@ -113,6 +119,10 @@ and evalFrame = stack =>
       apply(env, fn, List.rev(evaluated)),
       ...stack,
     ]
+  | [EvalFn(_, _), ..._] =>
+    raise(
+      ArgumentError("This should never appear in the head of the stack."),
+    )
   | [Stop(_, _), ..._] =>
     raise(ArgumentError("Don't know how to handle this stop."))
   | [] => raise(ArgumentError("Nothing on the stack."))

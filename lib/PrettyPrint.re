@@ -51,6 +51,9 @@ let printEvalStep = evalStep =>
     print_endline("Start");
     x |> string_of_expression |> print_endline;
     print_environment(environment);
+  | EvalFn(_environment, args) =>
+    print_endline("EvalFn");
+    print_expressions(args);
   | EvalArgs(_environment, fn, left, right) =>
     print_endline("EvalArgs");
     print_expressions(left);
