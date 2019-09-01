@@ -62,50 +62,54 @@ let rec apply = (env, fn, args) =>
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
 
-and evalStep = evalStep => {
-  switch (evalStep) {
-  | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
+and evalStart = (env, expr) =>
+  switch (expr) {
+  | True => Stop(env, True)
+  | False => Stop(env, False)
+  | Number(i) => Stop(env, Number(i))
 
-  | Start(e, True) => Stop(e, True)
-  | Start(e, False) => Stop(e, False)
-  | Start(e, Number(i)) => Stop(e, Number(i))
+  | Symbol(s) => Stop(env, StringMap.find(s, env))
 
-  | Start(env, Symbol(s)) => Stop(env, StringMap.find(s, env))
-
-  | Start(env, List([Symbol("def"), Symbol(name), valueExpr])) =>
+  | List([Symbol("def"), Symbol(name), valueExpr]) =>
     let result = eval(valueExpr, env);
     let newEnv = StringMap.add(name, result, env);
     Stop(newEnv, result);
 
-  | Start(env, List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])) =>
-    Stop(
-      env,
-      eval(conditionalExpr, env) == True
-        ? eval(thenExpr, env) : eval(elseExpr, env),
-    )
+  // Pulling out env every time is pretty repeditive. Perhaps there should be
+  // a function inside evalStep that doesn't need to care about the steps
+  | List([Symbol("if"), conditionalExpr, thenExpr, elseExpr]) =>
+    // The ternary should be finding which expr to eval and then evalling
+    // the result not evalling on both branches.
+    let next = eval(conditionalExpr, env) == True ? thenExpr : elseExpr;
+    Stop(env, eval(next, env));
 
-  | Start(e, List([Symbol("quote"), quotedValue])) => Stop(e, quotedValue)
-  | Start(_, List([Symbol("quote"), ..._tooManyArgs])) =>
+  | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
+  | List([Symbol("quote"), ..._tooManyArgs]) =>
     raise(ArgumentError("Quote only takes one argument"))
 
-  | Start(env, List([Symbol("lambda"), List(argsExprs), body])) =>
+  | List([Symbol("lambda"), List(argsExprs), body]) =>
     Stop(env, Lambda(env, List.map(argsToStrings, argsExprs), body))
-  | Start(_, List([Symbol("lambda"), ..._])) =>
+  | List([Symbol("lambda"), ..._]) =>
     raise(ArgumentError("Lambda needs args and a single body expression"))
 
-  | Start(env, List([func, ...argExprs])) =>
+  | List([func, ...argExprs]) =>
     EvalArgs(env, eval(func, env), [], argExprs)
+
+  | List(_) => raise(ArgumentError("Lists must start with a fn."))
+  | Function(_) => raise(ArgumentError("You can't eval a function."))
+  | Lambda(_, _, _) => raise(ArgumentError("You can't eval a lambda."))
+  }
+
+and evalStep = evalStep => {
+  switch (evalStep) {
+  | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
+
+  | Start(env, expr) => evalStart(env, expr)
 
   | EvalArgs(env, fn, evaluated, []) => apply(env, fn, List.rev(evaluated))
 
   | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) =>
     EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated)
-
-  | Start(_, List(_)) => raise(ArgumentError("Lists must start with a fn."))
-  | Start(_, Function(_)) =>
-    raise(ArgumentError("You can't eval a function."))
-  | Start(_, Lambda(_, _, _)) =>
-    raise(ArgumentError("You can't eval a lambda."))
   };
 }
 
