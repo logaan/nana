@@ -31,3 +31,5 @@ type evalStep =
   | Start(environment, expression)
   | EvalArgs(environment, expression, list(expression), list(expression))
   | Stop(environment, expression);
+
+type stack = list(evalStep);

@@ -49,15 +49,15 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (env, fn, args) =>
+let rec apply = (env, fn, args): stack =>
   switch (fn) {
-  | Function(fn) => Stop(env, StandardLibrary.builtinApply(fn, args))
+  | Function(fn) => [Stop(env, StandardLibrary.builtinApply(fn, args))]
 
   | Lambda(environment, argNames, body) =>
     // I think it's actually fine to ignore the stack here. That maybe gets us
     // tco? :S
     let merged = argsToEnv(environment, argNames, args);
-    evalStep(Start(merged, body));
+    evalStep([Start(merged, body)]);
 
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
@@ -96,35 +96,38 @@ and evalStart = (env, expr) =>
   | Lambda(_, _, _) => raise(ArgumentError("You can't eval a lambda."))
   }
 
-and evalStep = evalStep => {
-  switch (evalStep) {
-  | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
-  | Start(env, expr) => evalStart(env, expr)
-  | EvalArgs(env, fn, evaluated, []) => apply(env, fn, List.rev(evaluated))
-  | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) =>
-    EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated)
-  };
-}
+and evalStep = (stack: stack): stack =>
+  switch (stack) {
+  | [evalStep, ...stack] =>
+    switch (evalStep) {
+    | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
+    | Start(env, expr) => [evalStart(env, expr)] @ stack
+    | EvalArgs(env, fn, evaluated, []) =>
+      apply(env, fn, List.rev(evaluated))
+    | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) => [
+        EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated),
+      ]
+    }
+  | [] => raise(ArgumentError("Nothing on the stack."))
+  }
 
-and evalStepper = step => {
-  switch (step) {
-  | Stop(env, result) => (env, result)
-  | EvalArgs(env, fn, evaluated, unevaluated) =>
-    evalStepper(evalStep(EvalArgs(env, fn, evaluated, unevaluated)))
-  | Start(_) => evalStepper(evalStep(step))
-  };
-}
+and evalStepper = stack =>
+  switch (stack) {
+  | [] => raise(ArgumentError("Nothing on the stack."))
+  | [Stop(env, result)] => (env, result)
+  | stack => evalStepper(evalStep(stack))
+  }
 
 and eval = (expression, env): expression => {
   // print_endline("eval");
-  let (_, result) = evalStepper(Start(env, expression));
+  let (_, result) = evalStepper([Start(env, expression)]);
   result;
 };
 
 let evalExpressions = (environment, code) => {
   List.fold_left(
     ((env, _lastResult), expression) =>
-      evalStepper(Start(env, expression)),
+      evalStepper([Start(env, expression)]),
     (environment, Symbol("start")),
     parse(code),
   );
