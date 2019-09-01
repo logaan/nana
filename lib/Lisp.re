@@ -75,11 +75,7 @@ and evalStart = (env, expr) =>
     let newEnv = StringMap.add(name, result, env);
     Stop(newEnv, result);
 
-  // Pulling out env every time is pretty repeditive. Perhaps there should be
-  // a function inside evalStep that doesn't need to care about the steps
   | List([Symbol("if"), conditionalExpr, thenExpr, elseExpr]) =>
-    // The ternary should be finding which expr to eval and then evalling
-    // the result not evalling on both branches.
     let next = eval(conditionalExpr, env) == True ? thenExpr : elseExpr;
     Stop(env, eval(next, env));
 
@@ -103,11 +99,8 @@ and evalStart = (env, expr) =>
 and evalStep = evalStep => {
   switch (evalStep) {
   | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
-
   | Start(env, expr) => evalStart(env, expr)
-
   | EvalArgs(env, fn, evaluated, []) => apply(env, fn, List.rev(evaluated))
-
   | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) =>
     EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated)
   };
