@@ -49,15 +49,15 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
-let rec apply = (env, fn, args): stack =>
+let rec apply = (env, fn, args) =>
   switch (fn) {
-  | Function(fn) => [Stop(env, StandardLibrary.builtinApply(fn, args))]
+  | Function(fn) =>
+    let result = StandardLibrary.builtinApply(fn, args);
+    Stop(env, result);
 
   | Lambda(environment, argNames, body) =>
-    // I think it's actually fine to ignore the stack here. That maybe gets us
-    // tco? :S
     let merged = argsToEnv(environment, argNames, args);
-    evalFrame([Start(merged, body)]);
+    Start(merged, body);
 
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
@@ -102,8 +102,10 @@ and evalFrame = (stack: stack): stack =>
     switch (topFrame) {
     | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
     | Start(env, expr) => [evalStart(env, expr)] @ stack
-    | EvalArgs(env, fn, evaluated, []) =>
-      apply(env, fn, List.rev(evaluated))
+    | EvalArgs(env, fn, evaluated, []) => [
+        apply(env, fn, List.rev(evaluated)),
+        ...stack,
+      ]
     | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) => [
         EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated),
       ]
