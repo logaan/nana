@@ -100,9 +100,15 @@ and evalFrame = stack =>
   switch (stack) {
   | [Start(env, expr), ...stack] => [evalStart(env, expr)] @ stack
   | [EvalArgs(env, fn, evaluated, [next, ...unevaluated]), ...stack] => [
-      EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated),
+      Start(env, next),
+      EvalArgs(env, fn, evaluated, unevaluated),
       ...stack,
     ]
+  | [Stop(env, result), EvalArgs(_, fn, evaluated, unevaluated), ...stack] => [
+      EvalArgs(env, fn, [result, ...evaluated], unevaluated),
+      ...stack,
+    ]
+
   | [EvalArgs(env, fn, evaluated, []), ...stack] => [
       apply(env, fn, List.rev(evaluated)),
       ...stack,
