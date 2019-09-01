@@ -57,7 +57,7 @@ let rec apply = (env, fn, args): stack =>
     // I think it's actually fine to ignore the stack here. That maybe gets us
     // tco? :S
     let merged = argsToEnv(environment, argNames, args);
-    evalStep([Start(merged, body)]);
+    evalFrame([Start(merged, body)]);
 
   | _ => raise(ArgumentError("Lists must start with functions"))
   }
@@ -96,10 +96,10 @@ and evalStart = (env, expr) =>
   | Lambda(_, _, _) => raise(ArgumentError("You can't eval a lambda."))
   }
 
-and evalStep = (stack: stack): stack =>
+and evalFrame = (stack: stack): stack =>
   switch (stack) {
-  | [evalStep, ...stack] =>
-    switch (evalStep) {
+  | [topFrame, ...stack] =>
+    switch (topFrame) {
     | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
     | Start(env, expr) => [evalStart(env, expr)] @ stack
     | EvalArgs(env, fn, evaluated, []) =>
@@ -115,7 +115,7 @@ and evalStepper = stack =>
   switch (stack) {
   | [] => raise(ArgumentError("Nothing on the stack."))
   | [Stop(env, result)] => (env, result)
-  | stack => evalStepper(evalStep(stack))
+  | stack => evalStepper(evalFrame(stack))
   }
 
 and eval = (expression, env): expression => {

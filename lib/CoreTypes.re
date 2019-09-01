@@ -27,9 +27,9 @@ exception ArgumentError(string);
 
 exception UnbalancedParens;
 
-type evalStep =
+type frame =
   | Start(environment, expression)
   | EvalArgs(environment, expression, list(expression), list(expression))
   | Stop(environment, expression);
 
-type stack = list(evalStep);
+type stack = list(frame);
