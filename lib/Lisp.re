@@ -49,6 +49,12 @@ let argsToStrings = exp =>
   | _ => raise(ArgumentError("All arguments must be symbols"))
   };
 
+let notSpecialForm = word =>
+  word != Symbol("def")
+  && word != Symbol("if")
+  && word != Symbol("quote")
+  && word != Symbol("lambda");
+
 let rec apply = (env, fn, args) =>
   switch (fn) {
   | Function(fn) =>
@@ -66,6 +72,7 @@ and evalStart = (env, expr) =>
   switch (expr) {
   | True => Stop(env, True)
   | False => Stop(env, False)
+
   | Number(i) => Stop(env, Number(i))
 
   | Symbol(s) => Stop(env, StringMap.find(s, env))
@@ -74,19 +81,12 @@ and evalStart = (env, expr) =>
     let result = eval(valueExpr, env);
     let newEnv = StringMap.add(name, result, env);
     Stop(newEnv, result);
-
   | List([Symbol("if"), conditionalExpr, thenExpr, elseExpr]) =>
     let next = eval(conditionalExpr, env) == True ? thenExpr : elseExpr;
     Stop(env, eval(next, env));
-
   | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
-  | List([Symbol("quote"), ..._tooManyArgs]) =>
-    raise(ArgumentError("Quote only takes one argument"))
-
   | List([Symbol("lambda"), List(argsExprs), body]) =>
     Stop(env, Lambda(env, List.map(argsToStrings, argsExprs), body))
-  | List([Symbol("lambda"), ..._]) =>
-    raise(ArgumentError("Lambda needs args and a single body expression"))
 
   | List(_) => raise(ArgumentError("Lists must start with a fn."))
   | Function(_) => raise(ArgumentError("You can't eval a function."))
@@ -95,7 +95,8 @@ and evalStart = (env, expr) =>
 
 and evalFrame = stack =>
   switch (stack) {
-  | [Start(env, List([func, ...argExprs])), ...stack] => [
+  | [Start(env, List([func, ...argExprs])), ...stack]
+      when notSpecialForm(func) => [
       Start(env, func),
       EvalFn(env, argExprs),
       ...stack,

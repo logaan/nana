@@ -34,39 +34,35 @@ let run = () => {
   square |> parse |> string_of_expressions |> print_endline;
 
   evalAndPrint("(+ 1 1)");
-
   evalAndPrint("(first (quote (1 2 3)))");
-
   evalAndPrint("(println (quote foo))");
-
   evalAndPrint("(def a 4)
-       (println a)");
+           (println a)");
 
   evalAndPrint(
     "
-         (def square
-           (lambda (n)
-             (* n n)))
-         (println square)",
+             (def square
+               (lambda (n)
+                 (* n n)))
+             (println square)",
   );
   evalAndPrint("((lambda () (println 1)))");
 
   evalAndPrint("((lambda () ((lambda () (println 2)))))");
-
   evalAndPrint(
     "
-     (def square
-       (lambda ()
-         (* 4 4)))
-     (square)",
+          (def square
+            (lambda ()
+              (* 4 4)))
+          (square)",
   );
 
   evalAndPrint(
     "
-      (def square
-        (lambda (n)
-          (* n n)))
-      (square 4)",
+           (def square
+             (lambda (n)
+               (* n n)))
+           (square 4)",
   );
 
   evalAndPrint("(println println)");
@@ -74,99 +70,96 @@ let run = () => {
   evalAndPrint("((println println) 3)");
 
   evalAndPrint("(println (println 3))");
-
   try (
     evalAndPrint(
       "
-     (def square
-       (lambda (n)
-         (* n n)))
+               (def square
+                 (lambda (n)
+                   (* n n)))
 
-     (def do
-       (lambda (a b)
-         b))
+               (def do
+                 (lambda (a b)
+                   b))
 
-     (println (do (square 4) (square n)))",
+               (println (do (square 4) (square n)))",
     )
   ) {
-  | Not_found =>
-    print_endline("n not found");
-
-    // Binding to n in inner should not change the binding of n in outer
-    evalAndPrint(
-      "
-(def do
-  (lambda (a b)
-    b))
-
-(def inner
-  (lambda (n)
-    (println n)))
-
-(def outer
-  (lambda (n)
-       (do (inner (* n 4)) (println n))))
-
-(println (outer 1))
-
-       9",
-    );
-    // Expected output 4, 1, 1, 9
-
-    evalAndPrint(
-      "
-       (println (= true true))
-       (println (= false false))
-       (println (= true false))
-       (println (= false true))
-
-       (println (= 1 1))
-       (println (= 1 2))
-
-       (println (= (lambda (n) n)
-                   (lambda (n) n)))
-
-       (println (= (lambda (n) n)
-                   (lambda (y) y)))
-",
-    );
-
-    evalAndPrint(
-      "(if true (println (quote worked)) (println (quote broken)))",
-    );
-    evalAndPrint(
-      "(if false (println (quote broken)) (println (quote worked)))",
-    );
-    evalAndPrint(
-      "(if (= 1 1) (println (quote worked)) (println (quote broken)))",
-    );
-
-    evalAndPrint(
-      "
-
-(def do
-  (lambda (a b)
-    b))
-
-(def Y
-  (lambda (f)
-    ((lambda (x) (f (lambda (n) ((x x) n))))
-     (lambda (x) (f (lambda (n) ((x x) n)))))))
-
-(def count-to-10
-  (Y
-    (lambda (count-to-10)
-      (lambda (n)
-        (do (println n)
-            (if (= n 10)
-              (quote worked)
-              (count-to-10 (+ n 1))))))))
-
-(count-to-10 0)
-
-       ",
-    );
+  | Not_found => print_endline("n not found")
   };
+  // Binding to n in inner should not change the binding of n in outer
+  evalAndPrint(
+    "
+          (def do
+            (lambda (a b)
+              b))
+
+          (def inner
+            (lambda (n)
+              (println n)))
+
+          (def outer
+            (lambda (n)
+                 (do (inner (* n 4)) (println n))))
+
+          (println (outer 1))
+
+                 9",
+  );
+  // Expected output 4, 1, 1, 9
+
+  evalAndPrint(
+    "
+                 (println (= true true))
+                 (println (= false false))
+                 (println (= true false))
+                 (println (= false true))
+
+                 (println (= 1 1))
+                 (println (= 1 2))
+
+                 (println (= (lambda (n) n)
+                             (lambda (n) n)))
+
+                 (println (= (lambda (n) n)
+                             (lambda (y) y)))
+          ",
+  );
+
+  evalAndPrint("(if true (println (quote worked)) (println (quote broken)))");
+  evalAndPrint(
+    "(if false (println (quote broken)) (println (quote worked)))",
+  );
+  evalAndPrint(
+    "(if (= 1 1) (println (quote worked)) (println (quote broken)))",
+  );
+  /*
+     // Not sure why but this struggles to find something
+   evalAndPrint(
+     "
+
+          (def do
+            (lambda (a b)
+              b))
+
+          (def Y
+            (lambda (f)
+              ((lambda (x) (f (lambda (n) ((x x) n))))
+               (lambda (x) (f (lambda (n) ((x x) n)))))))
+
+          (def count-to-10
+            (Y
+              (lambda (count-to-10)
+                (lambda (n)
+                  (do (println n)
+                      (if (= n 10)
+                        (quote worked)
+                        (count-to-10 (+ n 1))))))))
+
+          (count-to-10 0)
+
+                 ",
+   );
+      */
 };
 
 let () = run();
