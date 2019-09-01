@@ -96,20 +96,19 @@ and evalStart = (env, expr) =>
   | Lambda(_, _, _) => raise(ArgumentError("You can't eval a lambda."))
   }
 
-and evalFrame = (stack: stack): stack =>
+and evalFrame = stack =>
   switch (stack) {
-  | [topFrame, ...stack] =>
-    switch (topFrame) {
-    | Stop(_, _) => raise(ArgumentError("Should never be passed to ePE"))
-    | Start(env, expr) => [evalStart(env, expr)] @ stack
-    | EvalArgs(env, fn, evaluated, []) => [
-        apply(env, fn, List.rev(evaluated)),
-        ...stack,
-      ]
-    | EvalArgs(env, fn, evaluated, [next, ...unevaluated]) => [
-        EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated),
-      ]
-    }
+  | [Start(env, expr), ...stack] => [evalStart(env, expr)] @ stack
+  | [EvalArgs(env, fn, evaluated, [next, ...unevaluated]), ...stack] => [
+      EvalArgs(env, fn, [eval(next, env), ...evaluated], unevaluated),
+      ...stack,
+    ]
+  | [EvalArgs(env, fn, evaluated, []), ...stack] => [
+      apply(env, fn, List.rev(evaluated)),
+      ...stack,
+    ]
+  | [Stop(_, _), ..._] =>
+    raise(ArgumentError("Don't know how to handle this stop."))
   | [] => raise(ArgumentError("Nothing on the stack."))
   }
 
@@ -121,7 +120,7 @@ and evalStepper = stack =>
   }
 
 and eval = (expression, env): expression => {
-  // print_endline("eval");
+  print_endline("eval");
   let (_, result) = evalStepper([Start(env, expression)]);
   result;
 };
