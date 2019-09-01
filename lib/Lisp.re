@@ -75,7 +75,10 @@ and evalStart = (env, expr) =>
 
   | Number(i) => Stop(env, Number(i))
 
-  | Symbol(s) => Stop(env, StringMap.find(s, env))
+  | Symbol(s) =>
+    try (Stop(env, StringMap.find(s, env))) {
+    | Not_found => raise(ArgumentError(s ++ " not found"))
+    }
 
   | List([Symbol("def"), Symbol(name), valueExpr]) =>
     let result = eval(valueExpr, env);

@@ -84,7 +84,7 @@ let run = () => {
                (println (do (square 4) (square n)))",
     )
   ) {
-  | Not_found => print_endline("n not found")
+  | ArgumentError("square not found") => print_endline("n not found")
   };
   // Binding to n in inner should not change the binding of n in outer
   evalAndPrint(
