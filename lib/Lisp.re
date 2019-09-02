@@ -120,6 +120,10 @@ and evalFrame = stack =>
       Start(env, elseExpr),
       ...stack,
     ]
+  // Can we special case `Stop(Lambda), AddToEnv` here? Create a new lambda that
+  // has itself in it's environment map? You maybe end up with a map with a
+  // lambda with the original map, seems like it might not be possible without
+  // mutation.
   | [Stop(_, result), AddToEnv(env, name), ...stack] => [
       Stop(StringMap.add(name, result, env), result),
       ...stack,
