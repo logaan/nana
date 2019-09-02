@@ -132,10 +132,9 @@ let run = () => {
   evalAndPrint(
     "(if (= 1 1) (println (quote worked)) (println (quote broken)))",
   );
-  /*
-     // Not sure why but this struggles to find something
-   evalAndPrint(
-     "
+  // Not sure why but this struggles to find something
+  evalAndPrint(
+    "
 
           (def do
             (lambda (a b)
@@ -143,23 +142,22 @@ let run = () => {
 
           (def Y
             (lambda (f)
-              ((lambda (x) (f (lambda (n) ((x x) n))))
-               (lambda (x) (f (lambda (n) ((x x) n)))))))
+              ((lambda (x) (f (lambda (a) ((x x) a))))
+               (lambda (x) (f (lambda (b) ((x x) b)))))))
 
           (def count-to-10
             (Y
               (lambda (count-to-10)
-                (lambda (n)
-                  (do (println n)
-                      (if (= n 10)
+                (lambda (c)
+                  (do (println c)
+                      (if (= c 10)
                         (quote worked)
-                        (count-to-10 (+ n 1))))))))
+                        (count-to-10 (+ c 1))))))))
 
           (count-to-10 0)
 
                  ",
-   );
-      */
+  );
 };
 
 let () = run();

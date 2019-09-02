@@ -104,7 +104,8 @@ and evalFrame = stack =>
       EvalFn(env, argExprs),
       ...stack,
     ]
-  | [Stop(env, result), EvalFn(_, argExprs), ...stack] => [
+  // This one has to be this way or a can't be found in the y combinator test
+  | [Stop(_, result), EvalFn(env, argExprs), ...stack] => [
       EvalArgs(env, result, [], argExprs),
       ...stack,
     ]
@@ -114,6 +115,8 @@ and evalFrame = stack =>
       EvalArgs(env, fn, evaluated, unevaluated),
       ...stack,
     ]
+  // This one has to be this way or n can't be found somewhere before the
+  // y-combinator one
   | [Stop(env, result), EvalArgs(_, fn, evaluated, unevaluated), ...stack] => [
       EvalArgs(env, fn, [result, ...evaluated], unevaluated),
       ...stack,
