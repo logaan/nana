@@ -126,6 +126,12 @@ and evalFrame = stack =>
   // mutation.
   // https://v1.realworldocaml.org/v1/en/html/imperative-programming-1.html
   // suggests let rec might help?
+  //
+  // It didn't.
+  //
+  // Maybe update the lambda implementation, or create a new type of lambda,
+  // that uses a ref ( https://reasonml.github.io/docs/en/mutation ) to store
+  // its env.
   | [Stop(_, result), AddToEnv(env, name), ...stack] => [
       Stop(StringMap.add(name, result, env), result),
       ...stack,
