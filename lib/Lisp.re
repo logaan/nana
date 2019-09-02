@@ -7,6 +7,8 @@ let tokenize = str =>
 
 let isNumber = str => Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
 
+let argErr = message => raise(ArgumentError(message));
+
 let rec read = (expressions, tokens) =>
   switch (tokens) {
   | [] => EndOfTokens(List.rev(expressions))
@@ -46,7 +48,7 @@ let argsToEnv = (env, names, values) => {
 let argsToStrings = exp =>
   switch (exp) {
   | Symbol(name) => name
-  | _ => raise(ArgumentError("All arguments must be symbols"))
+  | _ => argErr("All arguments must be symbols")
   };
 
 let notSpecialForm = word =>
@@ -65,7 +67,7 @@ let rec apply = (env, fn, args) =>
     let merged = argsToEnv(environment, argNames, args);
     Start(merged, body);
 
-  | _ => raise(ArgumentError("Lists must start with functions"))
+  | _ => argErr("Lists must start with functions")
   }
 
 and evalStart = (env, expr) =>
@@ -77,16 +79,16 @@ and evalStart = (env, expr) =>
 
   | Symbol(s) =>
     try (Stop(env, StringMap.find(s, env))) {
-    | Not_found => raise(ArgumentError(s ++ " not found"))
+    | Not_found => argErr(s ++ " not found")
     }
 
   | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
   | List([Symbol("lambda"), List(argsExprs), body]) =>
     Stop(env, Lambda(env, List.map(argsToStrings, argsExprs), body))
 
-  | List(_) => raise(ArgumentError("Lists must start with a fn."))
-  | Function(_) => raise(ArgumentError("You can't eval a function."))
-  | Lambda(_, _, _) => raise(ArgumentError("You can't eval a lambda."))
+  | List(_) => argErr("Lists must start with a fn.")
+  | Function(_) => argErr("You can't eval a function.")
+  | Lambda(_, _, _) => argErr("You can't eval a lambda.")
   }
 
 and evalFrame = stack =>
@@ -145,29 +147,20 @@ and evalFrame = stack =>
       ...stack,
     ]
   | [Stop(_, _), PushBranch(_, _, _), ..._stack] =>
-    raise(ArgumentError("If condition evaluated to non-boolean"))
+    argErr("If condition evaluated to non-boolean")
   | [PushBranch(_, _, _), ..._] =>
-    raise(
-      ArgumentError(
-        "PushBranch should never appear in the head of the stack.",
-      ),
-    )
+    argErr("PushBranch should never appear in the head of the stack.")
   | [AddToEnv(_, _), ..._] =>
-    raise(
-      ArgumentError("AddToEnv should never appear in the head of the stack."),
-    )
+    argErr("AddToEnv should never appear in the head of the stack.")
   | [EvalFn(_, _), ..._] =>
-    raise(
-      ArgumentError("EvalFn should never appear in the head of the stack."),
-    )
-  | [Stop(_, _), ..._] =>
-    raise(ArgumentError("Don't know how to handle this stop."))
-  | [] => raise(ArgumentError("Nothing on the stack."))
+    argErr("EvalFn should never appear in the head of the stack.")
+  | [Stop(_, _), ..._] => argErr("Don't know how to handle this stop.")
+  | [] => argErr("Nothing on the stack.")
   }
 
 and evalStepper = stack =>
   switch (stack) {
-  | [] => raise(ArgumentError("Nothing on the stack."))
+  | [] => argErr("Nothing on the stack.")
   | [Stop(env, result)] => (env, result)
   | stack => evalStepper(evalFrame(stack))
   }
