@@ -57,6 +57,11 @@ let printEvalStep = evalStep =>
   | EvalFn(_environment, args) =>
     print_endline("EvalFn");
     print_expressions(args);
+  | PushBranch(environment, thenExpr, elseExpr) =>
+    print_endline("PushBranch");
+    print_environment(environment);
+    print_expression(thenExpr);
+    print_expression(elseExpr);
   | EvalArgs(_environment, fn, left, right) =>
     print_endline("EvalArgs");
     print_expressions(left);

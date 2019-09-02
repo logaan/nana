@@ -80,9 +80,6 @@ and evalStart = (env, expr) =>
     | Not_found => raise(ArgumentError(s ++ " not found"))
     }
 
-  | List([Symbol("if"), conditionalExpr, thenExpr, elseExpr]) =>
-    let next = eval(conditionalExpr, env) == True ? thenExpr : elseExpr;
-    Stop(env, eval(next, env));
   | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
   | List([Symbol("lambda"), List(argsExprs), body]) =>
     Stop(env, Lambda(env, List.map(argsToStrings, argsExprs), body))
@@ -103,6 +100,22 @@ and evalFrame = stack =>
   | [Start(env, List([Symbol("def"), Symbol(name), valueExpr])), ...stack] => [
       Start(env, valueExpr),
       AddToEnv(env, name),
+      ...stack,
+    ]
+  | [
+      Start(env, List([Symbol("if"), conditionalExpr, thenExpr, elseExpr])),
+      ...stack,
+    ] => [
+      Start(env, conditionalExpr),
+      PushBranch(env, thenExpr, elseExpr),
+      ...stack,
+    ]
+  | [Stop(_, True), PushBranch(env, thenExpr, _elseExpr), ...stack] => [
+      Start(env, thenExpr),
+      ...stack,
+    ]
+  | [Stop(_, False), PushBranch(env, _thenExpr, elseExpr), ...stack] => [
+      Start(env, elseExpr),
       ...stack,
     ]
   | [Stop(_, result), AddToEnv(env, name), ...stack] => [
@@ -131,6 +144,14 @@ and evalFrame = stack =>
       apply(env, fn, List.rev(evaluated)),
       ...stack,
     ]
+  | [Stop(_, _), PushBranch(_, _, _), ..._stack] =>
+    raise(ArgumentError("If condition evaluated to non-boolean"))
+  | [PushBranch(_, _, _), ..._] =>
+    raise(
+      ArgumentError(
+        "PushBranch should never appear in the head of the stack.",
+      ),
+    )
   | [AddToEnv(_, _), ..._] =>
     raise(
       ArgumentError("AddToEnv should never appear in the head of the stack."),
