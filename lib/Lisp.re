@@ -80,10 +80,6 @@ and evalStart = (env, expr) =>
     | Not_found => raise(ArgumentError(s ++ " not found"))
     }
 
-  | List([Symbol("def"), Symbol(name), valueExpr]) =>
-    let result = eval(valueExpr, env);
-    let newEnv = StringMap.add(name, result, env);
-    Stop(newEnv, result);
   | List([Symbol("if"), conditionalExpr, thenExpr, elseExpr]) =>
     let next = eval(conditionalExpr, env) == True ? thenExpr : elseExpr;
     Stop(env, eval(next, env));
@@ -102,6 +98,15 @@ and evalFrame = stack =>
       when notSpecialForm(func) => [
       Start(env, func),
       EvalFn(env, argExprs),
+      ...stack,
+    ]
+  | [Start(env, List([Symbol("def"), Symbol(name), valueExpr])), ...stack] => [
+      Start(env, valueExpr),
+      AddToEnv(env, name),
+      ...stack,
+    ]
+  | [Stop(_, result), AddToEnv(env, name), ...stack] => [
+      Stop(StringMap.add(name, result, env), result),
       ...stack,
     ]
   // This one has to be this way or a can't be found in the y combinator test
@@ -126,9 +131,13 @@ and evalFrame = stack =>
       apply(env, fn, List.rev(evaluated)),
       ...stack,
     ]
+  | [AddToEnv(_, _), ..._] =>
+    raise(
+      ArgumentError("AddToEnv should never appear in the head of the stack."),
+    )
   | [EvalFn(_, _), ..._] =>
     raise(
-      ArgumentError("This should never appear in the head of the stack."),
+      ArgumentError("EvalFn should never appear in the head of the stack."),
     )
   | [Stop(_, _), ..._] =>
     raise(ArgumentError("Don't know how to handle this stop."))

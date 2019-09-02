@@ -29,6 +29,7 @@ exception UnbalancedParens;
 
 type frame =
   | Start(environment, expression)
+  | AddToEnv(environment, string)
   | EvalFn(environment, list(expression))
   | EvalArgs(environment, expression, list(expression), list(expression))
   | Stop(environment, expression);
