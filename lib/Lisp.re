@@ -120,18 +120,6 @@ and evalFrame = stack =>
       Start(env, elseExpr),
       ...stack,
     ]
-  // Can we special case `Stop(Lambda), AddToEnv` here? Create a new lambda that
-  // has itself in it's environment map? You maybe end up with a map with a
-  // lambda with the original map, seems like it might not be possible without
-  // mutation.
-  // https://v1.realworldocaml.org/v1/en/html/imperative-programming-1.html
-  // suggests let rec might help?
-  //
-  // It didn't.
-  //
-  // Maybe update the lambda implementation, or create a new type of lambda,
-  // that uses a ref ( https://reasonml.github.io/docs/en/mutation ) to store
-  // its env.
   | [Stop(_, result), AddToEnv(env, name), ...stack] => [
       Stop(StringMap.add(name, result, env), result),
       ...stack,
