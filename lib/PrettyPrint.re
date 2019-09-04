@@ -44,29 +44,26 @@ let print_environment = environment =>
     environment,
   );
 
-let printEvalStep = evalStep =>
-  switch (evalStep) {
+let string_of_frame = frame =>
+  switch (frame) {
   | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
-  | Start(environment, x) =>
-    print_endline("Start");
-    x |> string_of_expression |> print_endline;
-    print_environment(environment);
-  | AddToEnv(_environment, name) =>
-    print_endline("AddToEnv");
-    print_endline(name);
+  | Start(_environment, expr) =>
+    "Start(environment, " ++ string_of_expression(expr) ++ ")"
+  | AddToEnv(_environment, name) => "AddToEnv(environment, " ++ name ++ ")"
   | EvalFn(_environment, args) =>
-    print_endline("EvalFn");
-    print_expressions(args);
-  | PushBranch(environment, thenExpr, elseExpr) =>
-    print_endline("PushBranch");
-    print_environment(environment);
-    print_expression(thenExpr);
-    print_expression(elseExpr);
+    "EvalFn(environment, " ++ string_of_expressions(args) ++ ")"
+  | PushBranch(_environment, thenExpr, elseExpr) =>
+    "PushBranch(environment, "
+    ++ string_of_expression(thenExpr)
+    ++ ", "
+    ++ string_of_expression(elseExpr)
+    ++ ")"
   | EvalArgs(_environment, fn, left, right) =>
-    print_endline("EvalArgs");
-    print_expressions(left);
-    print_endline("------");
-    print_expressions(right);
-    print_endline("------");
-    fn |> string_of_expression |> print_endline;
+    "EvalArgs(environment, "
+    ++ string_of_expression(fn)
+    ++ ", "
+    ++ string_of_expressions(left)
+    ++ ", "
+    ++ string_of_expressions(right)
+    ++ ")"
   };
