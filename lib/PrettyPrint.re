@@ -31,7 +31,7 @@ let rec string_of_expression = expr =>
   };
 
 let string_of_expressions = exprs =>
-  String.concat("\n", List.map(string_of_expression, exprs));
+  "[" ++ String.concat(", ", List.map(string_of_expression, exprs)) ++ "]";
 
 let print_expression = expr => expr |> string_of_expression |> print_endline;
 
@@ -46,7 +46,8 @@ let print_environment = environment =>
 
 let string_of_frame = frame =>
   switch (frame) {
-  | Stop(_) => raise(ArgumentError("Should never be passed to ePE"))
+  | Stop(_environment, expr) =>
+    "Stop(environment, " ++ string_of_expression(expr) ++ ")"
   | Start(_environment, expr) =>
     "Start(environment, " ++ string_of_expression(expr) ++ ")"
   | AddToEnv(_environment, name) => "AddToEnv(environment, " ++ name ++ ")"
@@ -67,3 +68,6 @@ let string_of_frame = frame =>
     ++ string_of_expressions(right)
     ++ ")"
   };
+
+let string_of_stack = stack =>
+  "[" ++ String.concat(", ", List.map(string_of_frame, stack)) ++ "]";

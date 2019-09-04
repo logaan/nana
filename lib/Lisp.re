@@ -1,4 +1,5 @@
 open CoreTypes;
+open PrettyPrint;
 
 let tokenize = str =>
   str
@@ -150,12 +151,14 @@ and evalFrame = stack =>
   | [] => argErr("Nothing on the stack.")
   }
 
-and evalStepper = stack =>
+and evalStepper = stack => {
+  print_endline(string_of_stack(stack));
   switch (stack) {
   | [] => argErr("Nothing on the stack.")
   | [Stop(env, result)] => (env, result)
   | stack => evalStepper(evalFrame(stack))
-  }
+  };
+}
 
 and eval = (expression, env): expression => {
   print_endline("eval");
