@@ -22,7 +22,7 @@ let rec string_of_expression = expr =>
   | Function(fn) => "Function(" ++ string_of_builtin_function(fn) ++ ")"
   | Lambda(_env, args, body) =>
     "Lambda("
-    ++ "environment"
+    ++ "env"
     ++ ", ["
     ++ String.concat(", ", args)
     ++ "], ["
@@ -47,20 +47,20 @@ let print_environment = environment =>
 let string_of_frame = frame =>
   switch (frame) {
   | Stop(_environment, expr) =>
-    "Stop(environment, " ++ string_of_expression(expr) ++ ")"
+    "Stop(env, " ++ string_of_expression(expr) ++ ")"
   | Start(_environment, expr) =>
-    "Start(environment, " ++ string_of_expression(expr) ++ ")"
-  | AddToEnv(_environment, name) => "AddToEnv(environment, " ++ name ++ ")"
+    "Start(env, " ++ string_of_expression(expr) ++ ")"
+  | AddToEnv(_environment, name) => "AddToEnv(env, " ++ name ++ ")"
   | EvalFn(_environment, args) =>
-    "EvalFn(environment, " ++ string_of_expressions(args) ++ ")"
+    "EvalFn(env, " ++ string_of_expressions(args) ++ ")"
   | PushBranch(_environment, thenExpr, elseExpr) =>
-    "PushBranch(environment, "
+    "PushBranch(env, "
     ++ string_of_expression(thenExpr)
     ++ ", "
     ++ string_of_expression(elseExpr)
     ++ ")"
   | EvalArgs(_environment, fn, left, right) =>
-    "EvalArgs(environment, "
+    "EvalArgs(env, "
     ++ string_of_expression(fn)
     ++ ", "
     ++ string_of_expressions(left)

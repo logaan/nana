@@ -153,7 +153,7 @@ and evalFrame = stack =>
 
 and evalStepper = stack => {
   switch (Sys.getenv_opt("VERBOSE")) {
-  | Some(_) => print_endline(string_of_stack(stack))
+  | Some(_) => print_endline(string_of_stack(List.rev(stack)))
   | None => ()
   };
 
