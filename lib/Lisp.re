@@ -12,23 +12,17 @@ let argErr = message => raise(ArgumentError(message));
 let rec read = (expressions, tokens) =>
   switch (tokens) {
   | [] => EndOfTokens(List.rev(expressions))
-
   | ["(", ...tail] =>
     switch (read([], tail)) {
     | EndOfTokens(_) => raise(UnbalancedParens)
     | EndOfExpression(nestedExpressions, newTail) =>
       read([List(nestedExpressions), ...expressions], newTail)
     }
-
   | [")", ...tail] => EndOfExpression(List.rev(expressions), tail)
-
   | ["true", ...tail] => read([True, ...expressions], tail)
-
   | ["false", ...tail] => read([False, ...expressions], tail)
-
   | [head, ...tail] when isNumber(head) =>
     read([Number(int_of_string(head)), ...expressions], tail)
-
   | [head, ...tail] => read([Symbol(head), ...expressions], tail)
   };
 
@@ -62,11 +56,9 @@ let rec apply = (env, fn, args) =>
   | Function(fn) =>
     let result = StandardLibrary.builtinApply(fn, args);
     Stop(env, result);
-
   | Lambda(environment, argNames, body) =>
     let merged = argsToEnv(environment^, argNames, args);
     Start(merged, body);
-
   | _ => argErr("Lists must start with functions")
   }
 
@@ -74,18 +66,14 @@ and evalStart = (env, expr) =>
   switch (expr) {
   | True => Stop(env, True)
   | False => Stop(env, False)
-
   | Number(i) => Stop(env, Number(i))
-
   | Symbol(s) =>
     try (Stop(env, StringMap.find(s, env))) {
     | Not_found => argErr(s ++ " not found")
     }
-
   | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
   | List([Symbol("lambda"), List(argsExprs), body]) =>
     Stop(env, Lambda(ref(env), List.map(argsToStrings, argsExprs), body))
-
   | List(_) => argErr("Lists must start with a fn.")
   | Function(_) => argErr("You can't eval a function.")
   | Lambda(_, _, _) => argErr("You can't eval a lambda.")
@@ -146,7 +134,6 @@ and evalFrame = stack =>
       EvalArgs(env, fn, [result, ...evaluated], unevaluated),
       ...stack,
     ]
-
   | [EvalArgs(env, fn, evaluated, []), ...stack] => [
       apply(env, fn, List.rev(evaluated)),
       ...stack,
