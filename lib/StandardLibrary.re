@@ -17,6 +17,8 @@ let builtinApply = (func, args) =>
 
 let environment =
   StringMap.empty
+  |> add("true", True)
+  |> add("false", False)
   |> add("=", Function(Equals))
   |> add("+", Function(Plus))
   |> add("-", Function(Minus))

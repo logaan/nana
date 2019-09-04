@@ -152,7 +152,11 @@ and evalFrame = stack =>
   }
 
 and evalStepper = stack => {
-  print_endline(string_of_stack(stack));
+  switch (Sys.getenv_opt("VERBOSE")) {
+  | Some(_) => print_endline(string_of_stack(stack))
+  | None => ()
+  };
+
   switch (stack) {
   | [] => argErr("Nothing on the stack.")
   | [Stop(env, result)] => (env, result)
