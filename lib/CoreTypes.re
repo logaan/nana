@@ -15,7 +15,7 @@ type expression =
   | Symbol(string)
   | List(list(expression))
   | Function(builtinFunction)
-  | Lambda(environment, list(string), expression)
+  | Lambda(ref(environment), list(string), expression)
 
 and environment = StringMap.t(expression);
 

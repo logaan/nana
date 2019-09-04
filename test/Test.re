@@ -84,7 +84,7 @@ let run = () => {
                (println (do (square 4) (square n)))",
     )
   ) {
-  | ArgumentError("square not found") => print_endline("n not found")
+  | ArgumentError("n not found") => print_endline("n not found")
   };
   // Binding to n in inner should not change the binding of n in outer
   evalAndPrint(
@@ -140,19 +140,12 @@ let run = () => {
             (lambda (a b)
               b))
 
-          (def Y
-            (lambda (f)
-              ((lambda (x) (f (lambda (a) ((x x) a))))
-               (lambda (x) (f (lambda (b) ((x x) b)))))))
-
           (def count-to-10
-            (Y
-              (lambda (count-to-10)
-                (lambda (c)
-                  (do (println c)
-                      (if (= c 10)
-                        (quote worked)
-                        (count-to-10 (+ c 1))))))))
+            (lambda (c)
+              (do (println c)
+                  (if (= c 10)
+                    (quote worked)
+                    (count-to-10 (+ c 1))))))
 
           (count-to-10 0)
 

@@ -1,4 +1,5 @@
 open CoreTypes;
+// open PrettyPrint;
 
 let tokenize = str =>
   str
@@ -64,7 +65,7 @@ let rec apply = (env, fn, args) =>
     Stop(env, result);
 
   | Lambda(environment, argNames, body) =>
-    let merged = argsToEnv(environment, argNames, args);
+    let merged = argsToEnv(environment^, argNames, args);
     Start(merged, body);
 
   | _ => argErr("Lists must start with functions")
@@ -84,7 +85,7 @@ and evalStart = (env, expr) =>
 
   | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
   | List([Symbol("lambda"), List(argsExprs), body]) =>
-    Stop(env, Lambda(env, List.map(argsToStrings, argsExprs), body))
+    Stop(env, Lambda(ref(env), List.map(argsToStrings, argsExprs), body))
 
   | List(_) => argErr("Lists must start with a fn.")
   | Function(_) => argErr("You can't eval a function.")
@@ -120,6 +121,16 @@ and evalFrame = stack =>
       Start(env, elseExpr),
       ...stack,
     ]
+  | [
+      Stop(_, Lambda(envRef, _, _) as result),
+      AddToEnv(env, name),
+      ...stack,
+    ] =>
+    let newEnv = StringMap.add(name, result, env);
+    envRef := StringMap.add(name, result, envRef^);
+    // print_endline("name: " ++ name);
+    // print_environment(envRef^);
+    [Stop(newEnv, result), ...stack];
   | [Stop(_, result), AddToEnv(env, name), ...stack] => [
       Stop(StringMap.add(name, result, env), result),
       ...stack,
@@ -137,7 +148,7 @@ and evalFrame = stack =>
     ]
   // This one has to be this way or n can't be found somewhere before the
   // y-combinator one
-  | [Stop(env, result), EvalArgs(_, fn, evaluated, unevaluated), ...stack] => [
+  | [Stop(_, result), EvalArgs(env, fn, evaluated, unevaluated), ...stack] => [
       EvalArgs(env, fn, [result, ...evaluated], unevaluated),
       ...stack,
     ]
