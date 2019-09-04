@@ -132,7 +132,6 @@ let run = () => {
   evalAndPrint(
     "(if (= 1 1) (println (quote worked)) (println (quote broken)))",
   );
-  // Not sure why but this struggles to find something
   evalAndPrint(
     "
 
@@ -148,11 +147,8 @@ let run = () => {
                     (count-to-10 (+ c 1))))))
 
           (count-to-10 0)
-
                  ",
   );
 };
 
 let () = run();
-
-/* Calling eval on the function and on each of the args */
