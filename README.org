@@ -5,8 +5,8 @@
 
   It's implemented using ReasonML and compiles to a small native binary.
 
-  The standard library is `true`, `false`, `=`, `+`, `-`, `*`, `first`, and
-  `println`. It supports the special forms `def`, `if`, `quote`, and `lambda`.
+  The standard library is ~true~, ~false~, ~=~, ~+~, ~-~, ~*~, ~first~, and
+  ~println~. It supports the special forms ~def~, ~if~, ~quote~, and ~lambda~.
 
   It has tail call optimisation.
 
@@ -59,7 +59,7 @@
      Result: Number(1)
    #+END_SRC
 
-   `if` statements only evaluate the appropriate branch:
+   ~if~ statements only evaluate the appropriate branch:
 
    #+BEGIN_SRC reason
      (if true 1 2)
