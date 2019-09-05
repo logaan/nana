@@ -1,0 +1,166 @@
+* Reference
+  - [[https://norvig.com/lispy.html][(How to Write a (Lisp) Interpreter (in Python))]]
+  - [[https://reasonml.github.io/api/Str.html][Module Str]]
+  - [[https://stackoverflow.com/questions/48830710/how-do-i-declare-a-map-type-in-reason-ml][Reason Maps]]
+* Goals
+  - Define a function and call it
+    #+BEGIN_SRC lisp
+       (defn square (n)
+         (* n n))
+
+       (println (square 2))
+    #+END_SRC
+  - Create a repl executable
+* Observations   
+  - Not being able to print random data is super annoying
+    - I wanted to check that my tokenize fn is working and the best I can do is check the length
+  - It seemed good to flatten the expression type
+    - Originally had ~type atom = Symbol | Number;~ too
+    - It's a bit annoying that you can't have types without constructors
+    - Like expression needs list wrapped in List
+  - Can use a repl to see return values?
+    - [[https://medium.com/@bobbypriambodo/starting-an-ocaml-app-project-using-dune-d4f74e291de8][People recomment utop]]
+      - It sucks
+    - the ocaml binary sucks too
+  - Emacs editor support is pretty bad
+  - This doesn't compile though I think it should
+  #+BEGIN_SRC reason
+    let argsToEnv = (env: environment, names: list(string), values: list(expression)): environment =>
+      List.fold_left2(
+      (env, name, value) => StringMap.add(env, name, value),
+      StringMap.empty, names, values)
+  #+END_SRC
+* Repl
+  - ~rtop~ seem to be the best option
+    - But it can't find ~Str~
+  - There are examples of compiling a custom toplevel with dune
+    - But it can't ~#use~ reason files
+    - And doesn't find modules that're loaded in with the run fn
+  - rtop with require
+    #+BEGIN_SRC bash
+      rtop
+      #require "str";
+      #use "Lisp.re";
+    #+END_SRC
+  - Gave up and just wrote my own to string function
+* Todo
+**** TODO "There's no syntax for functions" is a good sign they shouldn't be part of the expression type
+**** DONE Should be able to define and call a lambda immediately
+     CLOSED: [2019-06-30 Sun 10:17]
+**** DONE Implement let
+     CLOSED: [2019-06-30 Sun 10:17]
+**** Create ~evalExpression~ that always returns results wrapped in environment
+***** Is aware of ~def~ and uses it to add things to the env
+**** Change ~eval~ to be ~evalPureExpression~
+**** Create ~eval~ that takes a list of expressions
+***** Reduce over the expressions, passing the env to each new version, accumulating the results
+* Talk
+** Goal
+   #+BEGIN_SRC lisp
+     (defn square (n)
+       (* n n))
+
+     (println (square 4))
+
+     ;; Output: 16
+   #+END_SRC
+** Goal without macros
+   #+BEGIN_SRC lisp
+     (def square
+       (fn (n)
+         (* n n)))
+
+     (println (square 4))
+
+     ;; Output: 16
+   #+END_SRC
+** Last line raw
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     "(println (square 4))"
+   #+END_SRC
+** Last line tokenised
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     ["(", "println", "(", "square", "4", ")", ")"]
+   #+END_SRC
+** Last line read
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     List([Symbol("println"), List([Symbol("Square"), Number(4)])])
+   #+END_SRC
+** Last line evaluated
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     ;; Output: 16
+     Number(16)
+   #+END_SRC
+** Last line eval 4
+   #+BEGIN_SRC lisp
+     (println (square 4))
+
+     Number(4)
+   #+END_SRC
+** Last line eval steps
+   #+BEGIN_SRC lisp
+     List([Symbol("println"), List([Symbol("Square"), Number(4)])])
+   #+END_SRC
+** Eval
+   #+BEGIN_SRC reason
+     and eval = (expression, environment) =>
+       switch (expression) {
+       | Number(i) => Number(i)
+
+       | Symbol(s) => StringMap.find(s, environment)
+
+       | List([Symbol("lambda"), List(argsExprs), ...body]) =>
+         Lambda(environment, List.map(argsToStrings, argsExprs), body)
+
+       | List([func, ...argExprs]) =>
+         let result = eval(func, environment);
+         let args = List.map(expr => eval(expr, environment),
+                             argExprs);
+         apply(result, args);
+       }
+   #+END_SRC
+* Continuations
+  This branch comes after the one by steps. I'm basically thinking of
+  refactoring eval through these steps. Each one should maintain the same
+  outwards behavior:
+- Wrap return values in Stop
+- Wrap input expressions in Start
+- Re-write loops recursively
+- Create a co-routine that calls back to eval when it turns a "I should loop"
+  value
+- Return on calls to apply
+  - The calling state will need to be saved so we can return to it later
+- Return intermediate step values for other significant points as well
+  - Are there actually any?
+    - It's probably not worth pausing after looking up a builtin for a function
+      call
+    - Though maybe it would be for an inline lambda definition
+    - If it were like ~((make-foo) 1 2 3)~ then you'd want to pause after having
+      popped back up from inside ~(make-foo)~
+* Continuations after first refactor
+  - Didn't go with differen types for Start and Stop because I thought we'd have
+    losts of intermediate ones. I think that might not actually be the case now,
+    so not having to worry about the invalid cases would be good.
+  - Only allowing one expression in the lambda body simplified things.
+  - Should implement a do form for multiple expressions
+  - Need to implement stack frames when we drop down into apply and pop back up
+* Recursive lambdas
+  Can we special case `Stop(Lambda), AddToEnv` here? Create a new lambda that
+  has itself in it's environment map? You maybe end up with a map with a lambda
+  with the original map, seems like it might not be possible without mutation.
+  https://v1.realworldocaml.org/v1/en/html/imperative-programming-1.html
+  suggests let rec might help?
+
+  It didn't.
+
+  Maybe update the lambda implementation, or create a new type of lambda, that
+  uses a ref ( https://reasonml.github.io/docs/en/mutation ) to store its env.
+
