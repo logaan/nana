@@ -13,11 +13,11 @@
 ** Example program
    
    #+BEGIN_SRC lisp
-     (defvar do
+     (def do
        (lambda (a b)
          b))
 
-     (defvar count-to-5
+     (def count-to-5
        (lambda (c)
          (do (println c)
              (if (= c 5)
