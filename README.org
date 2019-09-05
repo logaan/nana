@@ -13,18 +13,30 @@
 ** Example program
    
    #+BEGIN_SRC lisp
-     (def do
+     (defvar do
        (lambda (a b)
          b))
 
-     (def count-to-10
+     (defvar count-to-5
        (lambda (c)
          (do (println c)
-             (if (= c 10)
+             (if (= c 5)
                (quote worked)
-               (count-to-10 (+ c 1))))))
+               (count-to-5 (+ c 1))))))
 
-     (count-to-10 0)
+     (count-to-5 0)
+   #+END_SRC
+   
+   Will output
+
+   #+BEGIN_SRC reason
+     Number(0)
+     Number(1)
+     Number(2)
+     Number(3)
+     Number(4)
+     Number(5)
+     Symbol(worked)
    #+END_SRC
 
 ** Implementation
