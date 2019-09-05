@@ -107,7 +107,7 @@
      Result: Number(5)
    #+END_SRC
 
-   Nested function calls work too, though they get pretty verbose:
+   Nested function calls work too, producing satisfying peaks and valleys:
    
    #+BEGIN_SRC reason
      (def repeat-once
