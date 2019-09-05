@@ -49,7 +49,7 @@
    threads and continuations. Hopefully even serialisable continuations that can
    be persisted or transmitted and resumed on other machines.
 
-   Perhaps the simplest example is the number 1 which evaluated to itself:
+   Perhaps the simplest example is the number 1 which evaluates to itself:
 
    #+BEGIN_SRC reason
      1
@@ -71,7 +71,8 @@
      Result: Number(1)
    #+END_SRC
 
-   ~if~ statements only evaluate the appropriate branch:
+   ~if~ statements evaluate the condition expression and then the appropriate
+   branch:
 
    #+BEGIN_SRC reason
      (if true 1 2)
