@@ -5,10 +5,10 @@
 
   It's implemented using ReasonML and compiles to a small native binary.
 
-  The standard library is ~true~, ~false~, ~=~, ~+~, ~-~, ~*~, ~first~, and
-  ~println~. It supports the special forms ~def~, ~if~, ~quote~, and ~lambda~.
+  It includes only ~true~, ~false~, ~=~, ~+~, ~-~, ~*~, ~first~, and
+  ~println~. Also the special forms ~def~, ~if~, ~quote~, and ~lambda~.
 
-  It has tail call optimisation.
+  It supports recursion and tail call optimisation.
 
 ** Example program
    
