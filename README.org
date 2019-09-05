@@ -46,8 +46,8 @@
    frames.
    
    This style of computation should make it fairly straight forward to implement
-   threads, and continuations. Hopefully even serialisable continuations that
-   can be persisted or transmitted and resumed on other machines.
+   threads and continuations. Hopefully even serialisable continuations that can
+   be persisted or transmitted and resumed on other machines.
 
    Perhaps the simplest example is the number 1 which evaluated to itself:
 
