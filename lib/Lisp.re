@@ -87,8 +87,7 @@ and evalStart = (env, expr) =>
     )
   | Function(_) => argErr("You can't eval a function.")
   | Lambda(_, _, _) => argErr("You can't eval a lambda.")
-  // This feels wrong... but it works? Why're we ever evaluating the
-  // continuation?
+  // We eval the continuation when we pass it as an argument to the call/cc lambda.
   | Continuation(_) => Stop(env, expr)
   }
 
