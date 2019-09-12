@@ -16,8 +16,19 @@ type expression =
   | List(list(expression))
   | Function(builtinFunction)
   | Lambda(ref(environment), list(string), expression)
+  | Continuation(stack)
 
-and environment = StringMap.t(expression);
+and environment = StringMap.t(expression)
+
+and frame =
+  | Start(environment, expression)
+  | AddToEnv(environment, string)
+  | PushBranch(environment, expression, expression)
+  | EvalFn(environment, list(expression))
+  | EvalArgs(environment, expression, list(expression), list(expression))
+  | Stop(environment, expression)
+
+and stack = list(frame);
 
 type readResult =
   | EndOfTokens(list(expression))
@@ -26,13 +37,3 @@ type readResult =
 exception ArgumentError(string);
 
 exception UnbalancedParens;
-
-type frame =
-  | Start(environment, expression)
-  | AddToEnv(environment, string)
-  | PushBranch(environment, expression, expression)
-  | EvalFn(environment, list(expression))
-  | EvalArgs(environment, expression, list(expression), list(expression))
-  | Stop(environment, expression);
-
-type stack = list(frame);

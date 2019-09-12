@@ -50,16 +50,22 @@ let notSpecialForm = word =>
   word != Symbol("def")
   && word != Symbol("if")
   && word != Symbol("quote")
-  && word != Symbol("lambda");
+  && word != Symbol("lambda")
+  && word != Symbol("call/cc");
 
-let rec apply = (env, fn, args) =>
+let rec apply = (env, fn, args, stack) =>
   switch (fn) {
   | Function(fn) =>
     let result = StandardLibrary.builtinApply(fn, args);
-    Stop(env, result);
+    [Stop(env, result), ...stack];
   | Lambda(environment, argNames, body) =>
     let merged = argsToEnv(environment^, argNames, args);
-    Start(merged, body);
+
+    [Start(merged, body), ...stack];
+  | Continuation(continuationStack) => [
+      Stop(env, List.hd(args)),
+      ...continuationStack,
+    ]
   | _ => argErr("Lists must start with functions")
   }
 
@@ -75,9 +81,15 @@ and evalStart = (env, expr) =>
   | List([Symbol("quote"), quotedValue]) => Stop(env, quotedValue)
   | List([Symbol("lambda"), List(argsExprs), body]) =>
     Stop(env, Lambda(ref(env), List.map(argsToStrings, argsExprs), body))
-  | List(_) => argErr("Lists must start with a fn.")
+  | List(es) =>
+    argErr(
+      "Lists must start with a fn. You have " ++ string_of_expressions(es),
+    )
   | Function(_) => argErr("You can't eval a function.")
   | Lambda(_, _, _) => argErr("You can't eval a lambda.")
+  // This feels wrong... but it works? Why're we ever evaluating the
+  // continuation?
+  | Continuation(_) => Stop(env, expr)
   }
 
 and evalFrame = stack =>
@@ -99,6 +111,11 @@ and evalFrame = stack =>
     ] => [
       Start(env, conditionalExpr),
       PushBranch(env, thenExpr, elseExpr),
+      ...stack,
+    ]
+  | [Start(env, List([Symbol("call/cc"), func])), ...stack] => [
+      Start(env, func),
+      EvalFn(env, [Continuation(stack)]),
       ...stack,
     ]
   | [Stop(_, True), PushBranch(env, thenExpr, _elseExpr), ...stack] => [
@@ -135,10 +152,8 @@ and evalFrame = stack =>
       EvalArgs(env, fn, [result, ...evaluated], unevaluated),
       ...stack,
     ]
-  | [EvalArgs(env, fn, evaluated, []), ...stack] => [
-      apply(env, fn, List.rev(evaluated)),
-      ...stack,
-    ]
+  | [EvalArgs(env, fn, evaluated, []), ...stack] =>
+    apply(env, fn, List.rev(evaluated), stack)
   | [Stop(_, _), PushBranch(_, _, _), ..._stack] =>
     argErr("If condition evaluated to non-boolean")
   | [PushBranch(_, _, _), ..._] =>

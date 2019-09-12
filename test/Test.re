@@ -149,6 +149,45 @@ let run = () => {
           (count-to-10 0)
                  ",
   );
+
+  evalAndPrint(
+    "
+          (def do
+            (lambda (a b c)
+              c))
+(def my-val
+  (call/cc (lambda (the-continuation)
+             (do
+               (println (quote this-will-be-executed))
+               (the-continuation 5)
+               (println (quote this-will-not-be-executed))))))
+
+my-val
+",
+  );
+
+  /*
+     Failing: This isn't printing second-time-through because the rest of the
+     program isn't considered part of the initial continuation. evalExprs should
+     just be a bunch of starts on a stack?
+   */
+  evalAndPrint(
+    "
+
+          (def do
+            (lambda (a b)
+              b))
+
+(def my-val
+  (call/cc (lambda (the-continuation) the-continuation)))
+
+(if (= 5 my-val)
+  (println (quote second-time-through))
+  (do (println (quote first-time-through))
+      (my-val 5)))
+
+",
+  );
 };
 
 let () = run();

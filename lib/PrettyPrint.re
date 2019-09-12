@@ -28,23 +28,13 @@ let rec string_of_expression = expr =>
     ++ "], ["
     ++ string_of_expression(body)
     ++ "])"
-  };
+  | Continuation(stack) => "Continuation(" ++ string_of_stack(stack) ++ ")"
+  }
 
-let string_of_expressions = exprs =>
-  "[" ++ String.concat(", ", List.map(string_of_expression, exprs)) ++ "]";
+and string_of_expressions = exprs =>
+  "[" ++ String.concat(", ", List.map(string_of_expression, exprs)) ++ "]"
 
-let print_expression = expr => expr |> string_of_expression |> print_endline;
-
-let print_expressions = exprs =>
-  exprs |> string_of_expressions |> print_endline;
-
-let print_environment = environment =>
-  StringMap.iter(
-    (x, y) => Printf.printf("%s -> %s\n", x, string_of_expression(y)),
-    environment,
-  );
-
-let string_of_frame = frame =>
+and string_of_frame = frame =>
   switch (frame) {
   | Stop(_environment, expr) =>
     "Stop(env, " ++ string_of_expression(expr) ++ ")"
@@ -67,7 +57,18 @@ let string_of_frame = frame =>
     ++ ", "
     ++ string_of_expressions(right)
     ++ ")"
-  };
+  }
 
-let string_of_stack = stack =>
+and string_of_stack = stack =>
   "[" ++ String.concat(", ", List.map(string_of_frame, stack)) ++ "]";
+
+let print_expression = expr => expr |> string_of_expression |> print_endline;
+
+let print_expressions = exprs =>
+  exprs |> string_of_expressions |> print_endline;
+
+let print_environment = environment =>
+  StringMap.iter(
+    (x, y) => Printf.printf("%s -> %s\n", x, string_of_expression(y)),
+    environment,
+  );
