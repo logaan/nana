@@ -2,16 +2,15 @@ true
 true
 true
 true
-List(Symbol(defn), Symbol(square), List(Symbol(n)), List(Symbol(*), Symbol(n), Symbol(n)))
-List(Symbol(println), List(Symbol(square), Number(2)))
+[List(Symbol(defn), Symbol(square), List(Symbol(n)), List(Symbol(*), Symbol(n), Symbol(n))), List(Symbol(println), List(Symbol(square), Number(2)))]
 Number(2)
 Number(1)
 Symbol(foo)
 Symbol(foo)
 Number(4)
 Number(4)
-Lambda(environment, [n], [List(Symbol(*), Symbol(n), Symbol(n))])
-Lambda(environment, [n], [List(Symbol(*), Symbol(n), Symbol(n))])
+Lambda(env, [n], [List(Symbol(*), Symbol(n), Symbol(n))])
+Lambda(env, [n], [List(Symbol(*), Symbol(n), Symbol(n))])
 Number(1)
 Number(1)
 Number(2)
