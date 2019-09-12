@@ -154,6 +154,10 @@ and evalFrame = stack =>
     ]
   | [EvalArgs(env, fn, evaluated, []), ...stack] =>
     apply(env, fn, List.rev(evaluated), stack)
+  | [Stop(stopEnv, _), Start(_, expr), ...stack] => [
+      Start(stopEnv, expr),
+      ...stack,
+    ]
   | [Stop(_, _), PushBranch(_, _, _), ..._stack] =>
     argErr("If condition evaluated to non-boolean")
   | [PushBranch(_, _, _), ..._] =>
@@ -186,12 +190,9 @@ and eval = (expression, env): expression => {
 };
 
 let evalExpressions = (environment, code) => {
-  List.fold_left(
-    ((env, _lastResult), expression) =>
-      evalStepper([Start(env, expression)]),
-    (environment, Symbol("start")),
-    parse(code),
-  );
+  let stack =
+    List.map(expression => Start(environment, expression), parse(code));
+  evalStepper(stack);
 };
 
 let evalOnceOff = code => {
