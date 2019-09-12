@@ -166,11 +166,6 @@ my-val
 ",
   );
 
-  /*
-     Failing: This isn't printing second-time-through because the rest of the
-     program isn't considered part of the initial continuation. evalExprs should
-     just be a bunch of starts on a stack?
-   */
   evalAndPrint(
     "
 
