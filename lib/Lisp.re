@@ -112,7 +112,7 @@ and evalFrame = stack =>
       PushBranch(env, thenExpr, elseExpr),
       ...stack,
     ]
-    // Could have a stop/cc for js that doesn't maintain the current stack and just lets 
+  // Could have a stop/cc for js that doesn't maintain the current stack and just lets
   | [Start(env, List([Symbol("call/cc"), func])), ...stack] => [
       Start(env, func),
       EvalFn(env, [Continuation(stack)]),

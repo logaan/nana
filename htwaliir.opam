@@ -1,10 +1,10 @@
 opam-version: "2.0"
 version: "1.0"
-maintainer: "htwaliir@logaan.net"
+maintainer: "nana@logaan.net"
 authors: ["Logan Campbell"]
-homepage: "http://github.com/logaan/htwaliir"
-bug-reports: "https://github.com/logaan/htwaliir/issues"
-dev-repo: "git+https://github.com/logaan/htwaliir.git"
+homepage: "http://github.com/logaan/nana"
+bug-reports: "https://github.com/logaan/nana/issues"
+dev-repo: "git+https://github.com/logaan/nana.git"
 license: "Apache-2.0"
 build: [
   ["dune" "build" "-p" name "-j" jobs]

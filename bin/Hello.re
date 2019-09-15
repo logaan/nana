@@ -12,6 +12,6 @@ let rec run = env =>
   };
 
 let () = {
-  print_endline("HTWALIIR REPL.");
+  print_endline("Nana REPL.");
   run(StandardLibrary.environment);
 };
