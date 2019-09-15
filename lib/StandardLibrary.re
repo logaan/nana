@@ -10,7 +10,7 @@ let builtinApply = (func, args) =>
   | (Times, [Number(a), Number(b)]) => Number(a * b)
   | (First, [List([first, ..._rest])]) => first
   | (Println, [value]) =>
-    value |> string_of_expression |> print_endline;
+    value |> string_of_expression |> Js.Console.log;
     value;
   | _ => raise(ArgumentError("ArgumentError on a builtin function."))
   };

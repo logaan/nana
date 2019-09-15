@@ -1,21 +1,21 @@
+
 {
-  "name": "nanajs",
-  "version": "0.1.0",
+  "name": "react-hooks-template",
+  "reason": {
+    "react-jsx": 3
+  },
   "sources": {
     "dir" : "lib",
     "subdirs" : true
   },
-  "package-specs": {
+  "package-specs": [{
     "module": "commonjs",
     "in-source": true
-  },
+  }],
   "suffix": ".bs.js",
-  "bs-dependencies": [
-
-  ],
-  "warnings": {
-    "error" : "+101"
-  },
   "namespace": true,
+  "bs-dependencies": [
+    "reason-react"
+  ],
   "refmt": 3
 }

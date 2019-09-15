@@ -2,22 +2,36 @@ open CoreTypes;
 open PrettyPrint;
 
 let tokenize = str => {
-  let maybeTokenList = str
-  |> Js.String.replaceByRe(Js.Re.fromString("([()])"), " $1 ")
-  |> Js.String.splitByRe(Js.Re.fromString("[ \n]+"))
-  |> Array.to_list;
+  let maybeTokenList =
+    str
+    |> Js.String.replaceByRe(Js.Re.fromStringWithFlags("([()])", "g"), " $1 ")
+    |> Js.String.splitByRe(Js.Re.fromString("[ \n]+"))
+    |> Array.to_list;
 
-  List.flatten(List.map(v => switch(v) {
-    | Some(v) => [v]
-    | None => []
-  }, maybeTokenList))
-}
+  List.flatten(
+    List.map(
+      v =>
+        switch (v) {
+        | Some("") => []
+        | Some(v) => [v]
+        | None => []
+        },
+      maybeTokenList,
+    ),
+  );
+};
 
-let isNumber = str =>
-  switch(Js.String.match(Js.Re.fromString("^[0-9]*$"), str)) {
-    | Some(_) => true
-    | None => false
-  }
+let isNumber = str => {
+  let results = Js.String.match(Js.Re.fromString("^[0-9]*$"), str);
+  switch (results) {
+  | Some([|""|]) =>
+    false;
+  | Some(_) =>
+    true;
+  | None =>
+    false;
+  };
+};
 
 let argErr = message => raise(ArgumentError(message));
 
@@ -186,7 +200,6 @@ and evalStepper = stack => {
   // | Some(_) => print_endline(string_of_stack(List.rev(stack)))
   // | None => ()
   // };
-
   switch (stack) {
   | [] => argErr("Nothing on the stack.")
   | [Stop(env, result)] => (env, result)
@@ -201,8 +214,10 @@ and eval = (expression, env): expression => {
 };
 
 let evalExpressions = (environment, code) => {
+  let parsed = parse(code)
+  // Js.Console.log("Parsed: " ++ string_of_expressions(parsed));
   let stack =
-    List.map(expression => Start(environment, expression), parse(code));
+    List.map(expression => Start(environment, expression), parsed);
   evalStepper(stack);
 };
 
