@@ -1,12 +1,23 @@
 open CoreTypes;
 open PrettyPrint;
 
-let tokenize = str =>
-  str
-  |> Str.global_replace(Str.regexp("[()]"), " \\0 ")
-  |> Str.split(Str.regexp("[ \n]+"));
+let tokenize = str => {
+  let maybeTokenList = str
+  |> Js.String.replaceByRe(Js.Re.fromString("([()])"), " $1 ")
+  |> Js.String.splitByRe(Js.Re.fromString("[ \n]+"))
+  |> Array.to_list;
 
-let isNumber = str => Str.string_match(Str.regexp("^[0-9]*$"), str, 0);
+  List.flatten(List.map(v => switch(v) {
+    | Some(v) => [v]
+    | None => []
+  }, maybeTokenList))
+}
+
+let isNumber = str =>
+  switch(Js.String.match(Js.Re.fromString("^[0-9]*$"), str)) {
+    | Some(_) => true
+    | None => false
+  }
 
 let argErr = message => raise(ArgumentError(message));
 
@@ -171,10 +182,10 @@ and evalFrame = stack =>
   }
 
 and evalStepper = stack => {
-  switch (Sys.getenv_opt("VERBOSE")) {
-  | Some(_) => print_endline(string_of_stack(List.rev(stack)))
-  | None => ()
-  };
+  // switch (Sys.getenv_opt("VERBOSE")) {
+  // | Some(_) => print_endline(string_of_stack(List.rev(stack)))
+  // | None => ()
+  // };
 
   switch (stack) {
   | [] => argErr("Nothing on the stack.")
