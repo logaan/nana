@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-SOURCE_FILES=$(find bin lib test -name '*.re')
-refmt --in-place $SOURCE_FILES

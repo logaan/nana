@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-export VERBOSE=true
-
-dune clean && \
-./scripts/reformat && \
-dune exec bin/Hello.exe
