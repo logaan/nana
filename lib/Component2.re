@@ -32,7 +32,7 @@ let make = () => {
   let (state, dispatch) = React.useReducer(reducer, initialState);
 
   <div>
-    <textarea
+    <textarea rows=12 cols=80
       onChange={event =>
         dispatch(Update(ReactEvent.Form.target(event)##value))
       }
@@ -43,6 +43,9 @@ let make = () => {
         {ReasonReact.string("Run")}
       </button>
     </div>
-    <div> {ReasonReact.string(string_of_expression(state.result))} </div>
+    <h3>{ReasonReact.string("Result")}</h3>
+    <pre>
+    <code> {ReasonReact.string(string_of_expression(state.result))} </code>
+    </pre>
   </div>;
 };
