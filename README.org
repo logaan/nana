@@ -10,8 +10,7 @@
 
   It supports recursion, tail call optimisation, and continuations.
   
-  There's [a branch](https://github.com/logaan/nana) that compiles to
-  javascript. You can [try it in your browser](https://logaan.github.io/nana/).
+  There's [[https://github.com/logaan/nana][a branch]] that compiles to javascript. You can [[https://logaan.github.io/nana/][try it in your browser]].
 
 ** Example program
    
