@@ -5,10 +5,13 @@
 
   It's implemented using ReasonML and compiles to a small native binary.
 
-  It includes only ~true~, ~false~, ~=~, ~+~, ~-~, ~*~, ~first~, and
-  ~println~. Also the special forms ~def~, ~if~, ~quote~, and ~lambda~.
+  It includes only ~true~, ~false~, ~=~, ~+~, ~-~, ~*~, ~first~, ~println~, and
+  ~call/cc~. Also the special forms ~def~, ~if~, ~quote~, and ~lambda~.
 
-  It supports recursion and tail call optimisation.
+  It supports recursion, tail call optimisation, and continuations.
+  
+  There's [a branch](https://github.com/logaan/nana) that compiles to
+  javascript. You can [try it in your browser](https://logaan.github.io/nana/).
 
 ** Example program
    
