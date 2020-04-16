@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ReasonReact Examples</title>
+  <style>
+   pre { border: 1px solid black; padding: 1em; }
+  </style>
+</head>
+<body>
+    <h1>Nana Repl</h1>
+  <div id="repl"></div>
+
+  <script src="Index.js"></script>
+
+  <p>
+      Here are some programs you may enjoy running. Open up your developer
+      console to see anything printed with <code>println</code>.
+  </p>
+
+  <h4>Recursion and conditionals</h4>
+  <pre>
+      <code>
+(def do
+  (lambda (a b)
+    b))
+
+(def count-to-10
+  (lambda (c)
+    (do (println c)
+        (if (= c 10)
+          (quote worked)
+          (count-to-10 (+ c 1))))))
+
+(count-to-10 0)
+      </code>
+  </pre>
+
+  <h4>Basic continuations</h4>
+  <pre>
+      <code>
+(def do
+    (lambda (a b c)
+        c))
+
+(def my-val
+    (call/cc (lambda (the-continuation)
+                (do (println (quote this-will-be-executed))
+                    (the-continuation 5)
+                    (println (quote this-will-not-be-executed))))))
+
+my-val
+      </code>
+  </pre>
+
+  <h4>Continuations running outside their creation lambda</h4>
+  <pre>
+      <code>
+(def do
+    (lambda (a b)
+        b))
+
+(def my-val
+    (call/cc (lambda (the-continuation) the-continuation)))
+
+(if (= 5 my-val)
+    (println (quote second-time-through))
+    (do (println (quote first-time-through))
+        (my-val 5)))
+      </code>
+  </pre>
+</body>
+</html>
