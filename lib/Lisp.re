@@ -181,9 +181,9 @@ and evalStepper = stack => {
   | [Stop(env, result)] => (env, result)
   | stack => evalStepper(evalFrame(stack))
   };
-}
+};
 
-and eval = (expression, env): expression => {
+let eval = (expression, env): expression => {
   print_endline("eval");
   let (_, result) = evalStepper([Start(env, expression)]);
   result;

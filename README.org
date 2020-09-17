@@ -153,3 +153,17 @@
 
      Result: Symbol(done)
    #+END_SRC
+
+** Development environment
+
+   #+BEGIN_CODE bash
+     brew install dune
+     brew install ocaml
+
+     brew install opam
+     opam init
+     eval $(opam env)
+
+     opam install reason
+     ./scripts/test
+   #+END_CODE
