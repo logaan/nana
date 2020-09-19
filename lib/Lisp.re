@@ -53,7 +53,7 @@ let notSpecialForm = word =>
   && word != Symbol("lambda")
   && word != Symbol("call/cc");
 
-let rec apply = (env, fn, args, stack) =>
+let apply = (env, fn, args, stack) =>
   switch (fn) {
   | Function(fn) =>
     let result = StandardLibrary.builtinApply(fn, args);
@@ -67,9 +67,9 @@ let rec apply = (env, fn, args, stack) =>
       ...continuationStack,
     ]
   | _ => argErr("Lists must start with functions")
-  }
+  };
 
-and evalStart = (env, expr) =>
+let evalStart = (env, expr) =>
   switch (expr) {
   | True => Stop(env, True)
   | False => Stop(env, False)
@@ -89,9 +89,9 @@ and evalStart = (env, expr) =>
   | Lambda(_, _, _) => argErr("You can't eval a lambda.")
   // We eval the continuation when we pass it as an argument to the call/cc lambda.
   | Continuation(_) => Stop(env, expr)
-  }
+  };
 
-and evalFrame = stack =>
+let evalFrame = stack =>
   switch (stack) {
   | [Start(env, List([func, ...argExprs])), ...stack]
       when notSpecialForm(func) => [
@@ -168,9 +168,9 @@ and evalFrame = stack =>
     argErr("EvalFn should never appear in the head of the stack.")
   | [Stop(_, _), ..._] => argErr("Don't know how to handle this stop.")
   | [] => argErr("Nothing on the stack.")
-  }
+  };
 
-and evalStepper = stack => {
+let rec evalStepper = stack => {
   switch (Sys.getenv_opt("VERBOSE")) {
   | Some(_) => print_endline(string_of_stack(List.rev(stack)))
   | None => ()
